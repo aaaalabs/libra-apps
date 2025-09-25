@@ -1150,7 +1150,7 @@
         // Redis Sync Configuration
         const REDIS_CONFIG = {
             restUrl: 'https://prime-lacewing-62247.upstash.io',
-            token: 'AfMnAAIncDE2ZDgzMGQ1ZDhlMDE0NjczYWIyOTkzMTM2YjU2ZTY4MXAxNjIyNDc',
+            token: prompt("Enter your Redis Token:", "") || 'your-redis-token-here',
             hashKey: 'lib:leads',
             syncInterval: 5 * 60 * 1000, // 5 minutes
             retryAttempts: 3,

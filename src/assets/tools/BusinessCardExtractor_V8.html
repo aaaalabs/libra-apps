@@ -697,7 +697,7 @@ Beantworte NUR mit dem JSON, ohne weitere Erklärungen.`
             // Using the same Upstash Redis as LibraLeads main system
             const REDIS_CONFIG = {
                 restUrl: 'https://prime-lacewing-62247.upstash.io',
-                token: 'AfMnAAIncDE2ZDgzMGQ1ZDhlMDE0NjczYWIyOTkzMTM2YjU2ZTY4MXAxNjIyNDc',
+                token: prompt("Enter your Redis Token:", "") || 'your-redis-token-here',
                 hashKey: 'lib:leads'
             };
 
@@ -762,7 +762,7 @@ Beantworte NUR mit dem JSON, ohne weitere Erklärungen.`
             // Using the same Upstash Redis as LibraLeads main system
             const REDIS_CONFIG = {
                 restUrl: 'https://prime-lacewing-62247.upstash.io',
-                token: 'AfMnAAIncDE2ZDgzMGQ1ZDhlMDE0NjczYWIyOTkzMTM2YjU2ZTY4MXAxNjIyNDc',
+                token: prompt("Enter your Redis Token:", "") || 'your-redis-token-here',
                 hashKey: 'lib:leads'
             };
 
