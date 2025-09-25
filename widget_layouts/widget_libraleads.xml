@@ -1,0 +1,143 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/widget_container"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:padding="16dp"
+    android:background="@drawable/widget_background"
+    android:clickable="true">
+
+    <!-- Header -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingBottom="8dp">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="📊 LibraLeads"
+            android:textSize="16sp"
+            android:textStyle="bold"
+            android:textColor="#1d1d1f"
+            android:fontFamily="sans-serif-medium" />
+
+        <TextView
+            android:id="@+id/last_sync"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="2 min ago"
+            android:textSize="11sp"
+            android:textColor="#86868b"
+            android:fontFamily="sans-serif" />
+    </LinearLayout>
+
+    <!-- Urgent Section -->
+    <LinearLayout
+        android:id="@+id/urgent_section"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingBottom="12dp">
+
+        <TextView
+            android:id="@+id/urgent_header"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="🔴 URGENT (0)"
+            android:textSize="13sp"
+            android:textStyle="bold"
+            android:textColor="#FF3B30"
+            android:fontFamily="sans-serif-medium"
+            android:paddingBottom="4dp" />
+
+        <TextView
+            android:id="@+id/urgent_tasks"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="No urgent tasks today"
+            android:textSize="12sp"
+            android:textColor="#1d1d1f"
+            android:fontFamily="sans-serif"
+            android:lineSpacingMultiplier="1.3"
+            android:maxLines="3"
+            android:ellipsize="end" />
+    </LinearLayout>
+
+    <!-- This Week Section -->
+    <LinearLayout
+        android:id="@+id/week_section"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="vertical"
+        android:paddingBottom="12dp">
+
+        <TextView
+            android:id="@+id/week_header"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:text="🟡 THIS WEEK (0)"
+            android:textSize="13sp"
+            android:textStyle="bold"
+            android:textColor="#FF9F0A"
+            android:fontFamily="sans-serif-medium" />
+    </LinearLayout>
+
+    <!-- Bottom Stats -->
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:layout_marginTop="auto"
+        android:paddingTop="8dp"
+        android:background="@drawable/stats_divider">
+
+        <TextView
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="📈 Pipeline:"
+            android:textSize="12sp"
+            android:textColor="#86868b"
+            android:fontFamily="sans-serif" />
+
+        <TextView
+            android:id="@+id/pipeline_value"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="€0"
+            android:textSize="12sp"
+            android:textStyle="bold"
+            android:textColor="#30D158"
+            android:fontFamily="sans-serif-medium" />
+    </LinearLayout>
+
+    <!-- Quick Action Button (Optional) -->
+    <LinearLayout
+        android:id="@+id/quick_action"
+        android:layout_width="match_parent"
+        android:layout_height="32dp"
+        android:orientation="horizontal"
+        android:gravity="center"
+        android:layout_marginTop="8dp"
+        android:background="@drawable/quick_action_background"
+        android:clickable="true"
+        android:focusable="true">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="+ Add Quick Note"
+            android:textSize="11sp"
+            android:textColor="#007AFF"
+            android:textStyle="bold"
+            android:fontFamily="sans-serif-medium" />
+    </LinearLayout>
+
+</LinearLayout>

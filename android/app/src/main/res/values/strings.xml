@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">LibraApps</string>
+    <string name="title_activity_main">LibraApps</string>
+    <string name="package_name">com.libra.apps</string>
+    <string name="custom_url_scheme">com.libra.apps</string>
+</resources>

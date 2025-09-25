@@ -1,0 +1,3970 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LibraLeads - Lead Management</title>
+    <link rel="icon" type="image/x-icon" href="favicon.ico">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <style>
+        /* CSS Reset & Base */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --bg-primary: #f5f5f7;
+            --bg-secondary: #ffffff;
+            --text-primary: #1d1d1f;
+            --text-secondary: #6e6e73;
+            --border-color: #d2d2d7;
+            --accent-color: var(--text-primary);
+        }
+
+        [data-theme="dark"] {
+            --bg-primary: #1d1d1f;
+            --bg-secondary: #2c2c2e;
+            --text-primary: #f2f2f7;
+            --text-secondary: #8e8e93;
+            --border-color: #48484a;
+            --accent-color: #f2f2f7;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            line-height: 1.5;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        /* Layout */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 24px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 32px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .logo {
+            font-size: 24px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 16px;
+            align-items: center;
+        }
+
+        /* Webhook Sync Status */
+        .sync-status {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 12px;
+            color: var(--text-secondary);
+            padding: 4px 8px;
+            border-radius: 6px;
+            background: rgba(255, 255, 255, 0.8);
+            border: 1px solid rgba(0, 0, 0, 0.05);
+        }
+
+        .sync-icon {
+            font-size: 10px;
+            opacity: 0.7;
+        }
+
+        .sync-status.syncing .sync-icon {
+            animation: spin 1s linear infinite;
+        }
+
+        .sync-status.success {
+            color: #8e8e93;
+        }
+
+        .sync-status.error {
+            color: #8e8e93;
+        }
+
+        .sync-status:hover {
+            background: rgba(255, 255, 255, 1);
+            border-color: rgba(0, 0, 0, 0.1);
+        }
+
+        .theme-toggle {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+            font-size: 12px;
+            color: var(--text-secondary);
+            padding: 4px 8px;
+            border-radius: 6px;
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+
+        .theme-toggle:hover {
+            background: var(--bg-primary);
+            border-color: var(--text-secondary);
+        }
+
+        .theme-icon {
+            font-size: 14px;
+        }
+
+        @keyframes spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        /* Navigation Tabs */
+        .nav-tabs {
+            display: flex;
+            gap: 2px;
+            margin-bottom: 24px;
+            background: #e5e5e7;
+            padding: 4px;
+            border-radius: 12px;
+            width: fit-content;
+        }
+
+        .nav-tab {
+            padding: 8px 16px;
+            border: none;
+            background: transparent;
+            border-radius: 8px;
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .nav-tab.active {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Buttons */
+        .btn {
+            padding: 8px 16px;
+            border-radius: 8px;
+            border: none;
+            font-family: inherit;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .btn-primary {
+            background: #007aff;
+            color: white;
+        }
+
+        .btn-primary:hover {
+            background: #0056cc;
+        }
+
+        .btn-secondary {
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            border: 1px solid var(--border-color);
+        }
+
+        .btn-secondary:hover {
+            background: var(--bg-primary);
+        }
+
+        .btn-followup {
+            background: var(--bg-secondary);
+            color: #30d158;
+            border: 1px solid #30d158;
+            font-weight: 500;
+        }
+
+        .btn-followup:hover {
+            background: #30d158;
+            color: #ffffff;
+        }
+
+        /* Cards */
+        .card {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            padding: 20px;
+            margin-bottom: 16px;
+        }
+
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 16px;
+        }
+
+        .card-title {
+            font-size: 18px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 20px;
+            height: 20px;
+            padding: 0 6px;
+            background: #6e6e73;
+            color: white;
+            border-radius: 10px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+
+        .badge.urgent { background: #ff453a; }
+        .badge.important { background: #ff9f0a; }
+        .badge.planned { background: #30d158; }
+
+        /* Follow-up Dashboard */
+        .followup-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 20px;
+            margin-bottom: 32px;
+        }
+
+        .followup-item {
+            padding: 12px 16px;
+            background: var(--bg-primary);
+            border-radius: 8px;
+            border-left: 4px solid #d2d2d7;
+            margin-bottom: 8px;
+        }
+
+        .followup-item.urgent { border-left-color: #ff453a; }
+        .followup-item.important { border-left-color: #ff9f0a; }
+        .followup-item.planned { border-left-color: #30d158; }
+
+        .followup-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 6px;
+        }
+
+        .followup-company {
+            font-weight: 500;
+            font-size: 14px;
+        }
+
+        .followup-time {
+            font-size: 11px;
+            color: var(--text-secondary);
+            font-weight: 500;
+        }
+
+        .followup-action {
+            font-size: 12px;
+            color: var(--text-secondary);
+            margin-bottom: 8px;
+            line-height: 1.4;
+        }
+
+        .followup-actions {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-small {
+            padding: 4px 8px;
+            font-size: 12px;
+            border-radius: 6px;
+        }
+
+        .btn-group {
+            display: flex;
+            gap: 4px;
+        }
+
+        /* LinkedIn PoC Styles */
+        .linkedin-poc-container {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .poc-lead-card {
+            transition: all 0.2s ease;
+        }
+
+        .poc-lead-card:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+
+        .poc-action-checkbox {
+            width: 16px;
+            height: 16px;
+            accent-color: var(--accent-color);
+        }
+
+        .poc-notes {
+            resize: vertical;
+            min-height: 60px;
+        }
+
+        .priority-badge {
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .engagement-hook {
+            border: 1px solid var(--border-color);
+        }
+
+        .progress-bar-container {
+            position: relative;
+            overflow: hidden;
+        }
+
+        /* Lead Table */
+        .table-container {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            border: 1px solid var(--border-color);
+            overflow: hidden;
+        }
+
+        .table-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 16px 20px;
+            border-bottom: 1px solid var(--border-color);
+            background: var(--bg-primary);
+        }
+
+        .search-container {
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+
+        .search-input {
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 14px;
+            width: 250px;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            transition: all 0.3s ease;
+        }
+
+        .search-input:focus {
+            outline: none;
+            border-color: #007aff;
+        }
+
+        select {
+            padding: 6px 8px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            font-family: inherit;
+            font-size: 13px;
+            transition: all 0.3s ease;
+        }
+
+        select:focus {
+            outline: none;
+            border-color: #007aff;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        th {
+            text-align: left;
+            padding: 12px 16px;
+            font-weight: 500;
+            font-size: 12px;
+            color: var(--text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            background: var(--bg-primary);
+            border-bottom: 1px solid var(--border-color);
+            cursor: pointer;
+            user-select: none;
+        }
+
+        th:hover {
+            background: #f0f0f2;
+        }
+
+        td {
+            padding: 12px 16px;
+            border-bottom: 1px solid #f0f0f2;
+            vertical-align: top;
+        }
+
+        tr:hover {
+            background: var(--bg-primary);
+        }
+
+        /* Status Indicators */
+        .status-indicator {
+            display: inline-flex;
+            align-items: center;
+            padding: 4px 8px;
+            border-radius: 6px;
+            font-size: 11px;
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .status-new { background: #e3f2fd; color: #1976d2; }
+        .status-email { background: #fff3e0; color: #f57c00; }
+        .status-response { background: #e8f5e8; color: #388e3c; }
+        .status-meeting { background: #f3e5f5; color: #7b1fa2; }
+        .status-no-interest { background: #ffebee; color: #d32f2f; }
+
+        .priority-indicator {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            margin-right: 8px;
+        }
+
+        .priority-high { background: #ff453a; }
+        .priority-medium { background: #ff9f0a; }
+        .priority-low { background: #30d158; }
+
+        /* Forms */
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 4px;
+            font-size: 14px;
+            font-weight: 500;
+            color: var(--text-primary);
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 8px 12px;
+            border: 1px solid var(--border-color);
+            border-radius: 6px;
+            font-family: inherit;
+            font-size: 14px;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            transition: all 0.3s ease;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: #007aff;
+        }
+
+        /* Hidden sections */
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        /* Inline Edit */
+        .edit-row {
+            background: var(--bg-primary) !important;
+            border-left: 3px solid #007aff;
+        }
+
+        .inline-edit {
+            display: none;
+            background: var(--bg-primary);
+            border-top: 1px solid var(--border-color);
+            border-bottom: 1px solid #e0e0e2;
+        }
+
+        .inline-edit.active {
+            display: table-row;
+        }
+
+        .edit-form {
+            padding: 20px;
+            background: var(--bg-secondary);
+            border-radius: 8px;
+            margin: 8px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        }
+
+        .edit-grid {
+            display: grid;
+            grid-template-columns: 1.2fr 1fr 1.5fr 1.2fr 0.9fr 0.8fr 1fr;
+            gap: 12px;
+            margin-bottom: 16px;
+        }
+
+        .edit-field {
+            display: flex;
+            flex-direction: column;
+        }
+        
+        .edit-full {
+            grid-column: span 3;
+        }
+        
+        .edit-half {
+            grid-column: span 3;
+        }
+        
+        /* Tooltips */
+        .tooltip {
+            position: relative;
+            display: inline-block;
+            cursor: help;
+        }
+        
+        .tooltip .tooltiptext {
+            visibility: hidden;
+            width: 200px;
+            background-color: var(--text-primary);
+            color: #fff;
+            text-align: left;
+            border-radius: 6px;
+            padding: 8px 10px;
+            font-size: 11px;
+            line-height: 1.4;
+            position: absolute;
+            z-index: 1000;
+            bottom: 125%;
+            left: 50%;
+            margin-left: -100px;
+            opacity: 0;
+            transition: opacity 0.2s;
+        }
+        
+        .tooltip .tooltiptext::after {
+            content: "";
+            position: absolute;
+            top: 100%;
+            left: 50%;
+            margin-left: -5px;
+            border-width: 5px;
+            border-style: solid;
+            border-color: #1d1d1f transparent transparent transparent;
+        }
+        
+        .tooltip:hover .tooltiptext {
+            visibility: visible;
+            opacity: 1;
+        }
+
+        /* Modal */
+        .modal {
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-content {
+            background: var(--bg-secondary);
+            border-radius: 12px;
+            width: 90%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+        }
+
+        .modal-header {
+            padding: 20px 24px 16px;
+            border-bottom: 1px solid var(--border-color);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .modal-header h3 {
+            margin: 0;
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            color: var(--text-secondary);
+            cursor: pointer;
+            padding: 0;
+            width: 30px;
+            height: 30px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-body {
+            padding: 24px;
+        }
+
+        .modal-footer {
+            padding: 16px 24px 24px;
+            display: flex;
+            gap: 12px;
+            justify-content: flex-end;
+        }
+
+
+
+        .edit-label {
+            font-size: 11px;
+            font-weight: 500;
+            color: var(--text-secondary);
+            margin-bottom: 4px;
+            text-transform: uppercase;
+            letter-spacing: 0.3px;
+        }
+
+        .edit-input {
+            padding: 6px 8px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 13px;
+            font-family: inherit;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            transition: all 0.3s ease;
+        }
+
+        .edit-input:focus {
+            outline: none;
+            border-color: #007aff;
+        }
+
+        .edit-input.small {
+            width: 80px;
+        }
+
+        .edit-textarea {
+            resize: none;
+            height: 60px;
+            font-family: inherit;
+        }
+
+        .edit-select {
+            padding: 6px 8px;
+            border: 1px solid var(--border-color);
+            border-radius: 4px;
+            font-size: 13px;
+            background: var(--bg-secondary);
+            color: var(--text-primary);
+            font-family: inherit;
+            transition: all 0.3s ease;
+        }
+
+        .edit-actions {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding-top: 12px;
+            border-top: 1px solid var(--border-color);
+        }
+
+        .edit-actions-left {
+            display: flex;
+            gap: 8px;
+        }
+
+        .edit-actions-right {
+            display: flex;
+            gap: 8px;
+        }
+
+        .btn-mini {
+            padding: 6px 12px;
+            font-size: 12px;
+            border-radius: 4px;
+            font-weight: 500;
+        }
+
+
+        .btn-delete-mini {
+            background: #ff453a;
+            color: white;
+            border: none;
+        }
+
+        .btn-delete-mini:hover {
+            background: #d32f2f;
+        }
+
+        .edit-wide {
+            grid-column: span 3;
+        }
+
+        .edit-full {
+            grid-column: span 6;
+        }
+
+        .edit-toggle-btn {
+            background: var(--bg-primary);
+            color: var(--text-secondary);
+            border: 1px solid var(--border-color);
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 11px;
+            cursor: pointer;
+            font-weight: 500;
+        }
+
+        .edit-toggle-btn:hover {
+            background: var(--border-color);
+        }
+
+        .edit-toggle-btn.active {
+            background: #007aff;
+            color: white;
+        }
+
+        .edit-extended {
+            margin-top: 12px;
+            padding-top: 12px;
+            border-top: 1px solid var(--border-color);
+            display: none;
+        }
+
+        .edit-extended.active {
+            display: block;
+        }
+
+        /* Responsive design for grouped layout */
+        @media (max-width: 1200px) {
+            /* Stack groups vertically on medium screens */
+            .edit-form > div:first-child {
+                display: block !important;
+                gap: 16px !important;
+            }
+            .edit-form > div:first-child > div {
+                display: grid !important;
+                grid-template-columns: repeat(3, 1fr) !important;
+                gap: 10px !important;
+                margin-bottom: 16px;
+            }
+            .edit-form > div:first-child > div:last-child {
+                grid-template-columns: repeat(2, 1fr) !important;
+            }
+        }
+
+        @media (max-width: 768px) {
+            /* Single column on mobile */
+            .edit-form > div:first-child {
+                display: block !important;
+            }
+            .edit-form > div:first-child > div {
+                display: grid !important;
+                grid-template-columns: 1fr !important;
+                gap: 12px !important;
+                margin-bottom: 16px;
+            }
+        }
+            
+            .edit-wide {
+                grid-column: span 3;
+            }
+            
+            .edit-full {
+                grid-column: span 3;
+            }
+            
+            .edit-form {
+                padding: 16px;
+                margin: 4px;
+            }
+            
+            .edit-input, .edit-select {
+                font-size: 12px;
+                padding: 4px 6px;
+            }
+        }
+
+        /* Empty states */
+        .empty-state {
+            text-align: center;
+            padding: 48px 20px;
+            color: var(--text-secondary);
+        }
+
+        .empty-state h3 {
+            margin-bottom: 8px;
+            font-size: 16px;
+            font-weight: 500;
+        }
+
+        .empty-state p {
+            font-size: 14px;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .container {
+                padding: 16px;
+            }
+            
+            .header {
+                flex-direction: column;
+                gap: 16px;
+                align-items: stretch;
+            }
+            
+            .search-input {
+                width: 100%;
+            }
+            
+            .followup-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            table {
+                font-size: 12px;
+            }
+            
+            th, td {
+                padding: 8px 12px;
+            }
+            
+            /* Mobile Edit Form */
+            .edit-grid {
+                grid-template-columns: 1fr !important;
+                gap: 8px !important;
+            }
+            
+            .edit-field {
+                margin-bottom: 8px;
+            }
+            
+            .edit-input, .edit-select, .edit-textarea {
+                font-size: 16px; /* Prevent zoom on iOS */
+            }
+        }
+        
+        @media (max-width: 1024px) and (min-width: 769px) {
+            /* Tablet: 3 columns for extended edit */
+            .edit-extended .edit-grid {
+                grid-template-columns: repeat(3, 1fr) !important;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <!-- Header -->
+        <div class="header">
+            <div class="logo">LibraLeads</div>
+            <div class="header-actions">
+                <div class="theme-toggle" id="theme-toggle" onclick="toggleTheme()" title="Theme wechseln">
+                    <span class="theme-icon" id="theme-icon">🌙</span>
+                </div>
+                <div class="sync-status" id="sync-status" onclick="console.log('Click detected!'); triggerManualSync();" style="cursor: pointer;" title="Click to sync now">
+                    <span class="sync-icon">●</span>
+                    <span class="sync-text">Sync: --:--</span>
+                </div>
+                <button class="btn btn-secondary" onclick="exportJSON()">Export</button>
+                <input type="file" id="jsonFileInput" accept=".json" style="display: none;" onchange="importJSON(this)">
+                <button class="btn btn-secondary" onclick="document.getElementById('jsonFileInput').click()">Import</button>
+                <button class="btn btn-primary" onclick="showAddLeadForm()">Neuer Lead</button>
+            </div>
+        </div>
+
+        <!-- Navigation -->
+        <div class="nav-tabs">
+            <button class="nav-tab active" onclick="switchTab('followups')">Follow-ups</button>
+            <button class="nav-tab" onclick="switchTab('leads')">Alle Leads</button>
+            <button class="nav-tab" onclick="switchTab('linkedin')">LinkedIn PoC</button>
+        </div>
+
+        <!-- Follow-ups Tab -->
+        <div id="followups-content" class="tab-content active">
+            <div class="followup-grid">
+                <!-- Today's Follow-ups -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">Heute</h2>
+                        <span class="badge urgent" id="today-count">0</span>
+                    </div>
+                    <div id="today-followups">
+                        <div class="empty-state">
+                            <h3>Keine Follow-ups heute</h3>
+                            <p>Alle aktuellen Follow-ups sind erledigt</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- LinkedIn PoC Widget -->
+                <div class="card" id="linkedin-poc-widget" style="display: none;">
+                    <div class="card-header">
+                        <h2 class="card-title">🎯 LinkedIn PoC</h2>
+                        <span class="badge planned" id="linkedin-poc-badge">0/4</span>
+                    </div>
+                    <div id="linkedin-poc-quick-actions">
+                        <div class="empty-state">
+                            <h3>LinkedIn PoC bereit</h3>
+                            <p>Gentle engagement für 4 TOP Leads</p>
+                            <button class="btn btn-accent" onclick="switchTab('linkedin')" style="margin-top: 8px;">
+                                🚀 Start PoC
+                            </button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- This Week's Follow-ups -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">Diese Woche</h2>
+                        <span class="badge important" id="week-count">0</span>
+                    </div>
+                    <div id="week-followups">
+                        <div class="empty-state">
+                            <h3>Keine Follow-ups diese Woche</h3>
+                            <p>Deine Pipeline ist aktuell</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Future Follow-ups -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">Nächste 30 Tage</h2>
+                        <span class="badge secondary" id="future-count">0</span>
+                    </div>
+                    <div id="future-followups">
+                        <div class="empty-state">
+                            <h3>Keine geplanten Follow-ups</h3>
+                            <p>Pipeline für die nächsten Wochen</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Overdue Follow-ups -->
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">Überfällig</h2>
+                        <span class="badge urgent" id="overdue-count">0</span>
+                    </div>
+                    <div id="overdue-followups">
+                        <div class="empty-state">
+                            <h3>Keine überfälligen Follow-ups</h3>
+                            <p>Perfekt! Du bist auf dem neuesten Stand</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Leads Tab -->
+        <div id="leads-content" class="tab-content">
+            <div class="table-container">
+                <div class="table-header">
+                    <div class="search-container">
+                        <input type="text" class="search-input" placeholder="Leads suchen..." id="searchInput" oninput="filterLeads(this.value)">
+                    </div>
+                    <div>
+                        <select id="statusFilter" onchange="filterLeads()">
+                            <option value="">Alle Status</option>
+                            <option value="new">Neu</option>
+                            <option value="email_sent">Email gesendet</option>
+                            <option value="response">Response</option>
+                            <option value="meeting">Meeting</option>
+                            <option value="no_interest">Kein Interesse</option>
+                        </select>
+                        <select id="priorityFilter" onchange="filterLeads()">
+                            <option value="">Alle Prioritäten</option>
+                            <option value="high">Hoch</option>
+                            <option value="medium">Mittel</option>
+                            <option value="low">Niedrig</option>
+                        </select>
+                    </div>
+                </div>
+                <table id="leadsTable">
+                    <thead>
+                        <tr>
+                            <th onclick="sortTable('company')">Firma</th>
+                            <th onclick="sortTable('contact')">Kontakt</th>
+                            <th onclick="sortTable('status')">Status</th>
+                            <th onclick="sortTable('priority')">Priorität</th>
+                            <th onclick="sortTable('nextFollowup')">Nächstes Follow-up</th>
+                            <th onclick="sortTable('dealSize')">Deal Size</th>
+                            <th>Aktionen</th>
+                        </tr>
+                    </thead>
+                    <tbody id="leadsTableBody">
+                        <!-- Leads will be populated here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+
+        <!-- LinkedIn PoC Tab -->
+        <div id="linkedin-content" class="tab-content">
+            <div class="linkedin-poc-container">
+                <div class="section">
+                    <h2>🎯 LinkedIn PoC - Gentle Engagement</h2>
+                    <div class="poc-progress" id="poc-progress">
+                        <span id="poc-progress-text">Loading...</span>
+                        <div class="progress-bar-container" style="width: 200px; height: 8px; background: var(--bg-secondary); border-radius: 4px; margin-top: 8px;">
+                            <div class="progress-bar" id="poc-progress-bar" style="height: 100%; background: var(--accent-color); border-radius: 4px; width: 0%; transition: width 0.3s ease;"></div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="poc-leads-container" id="poc-leads-container">
+                    <!-- PoC leads will be populated here -->
+                </div>
+                
+                <div class="poc-actions-summary" style="margin-top: 24px; padding: 16px; background: var(--bg-secondary); border-radius: 8px;">
+                    <h4>📊 PoC Summary</h4>
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-top: 12px;">
+                        <div>
+                            <strong>Total Leads:</strong> <span id="poc-total-leads">0</span>
+                        </div>
+                        <div>
+                            <strong>Engaged:</strong> <span id="poc-engaged-count">0</span>
+                        </div>
+                        <div>
+                            <strong>Responses:</strong> <span id="poc-responses-count">0</span>
+                        </div>
+                        <div>
+                            <strong>Next Action:</strong> <span id="poc-next-action">Load PoC Plan</span>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 16px;">
+                        <button class="btn btn-secondary" onclick="loadPoCPlan()" id="load-poc-btn">Load PoC Plan</button>
+                        <button class="btn btn-primary" onclick="markAllPoCComplete()" id="complete-poc-btn" style="display: none;">Mark PoC Complete</button>
+                        <button class="btn btn-accent" onclick="exportPoCResults()" id="export-poc-btn" style="display: none;">Export Results</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Follow-up Planning Modal -->
+    <div id="followup-modal" class="modal" style="display: none;">
+        <div class="modal-content" style="max-width: 500px;">
+            <div class="modal-header">
+                <h3>Follow-up planen</h3>
+                <button class="modal-close" onclick="closeFollowupModal()">&times;</button>
+            </div>
+            <div class="modal-body">
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 16px;">
+                    <div>
+                        <label class="form-label">Datum</label>
+                        <input type="date" id="modal-followup-date" class="form-input">
+                    </div>
+                    <div>
+                        <label class="form-label">Uhrzeit</label>
+                        <input type="time" id="modal-followup-time" class="form-input" value="09:00">
+                    </div>
+                </div>
+                <div style="margin-bottom: 16px;">
+                    <label class="form-label">Follow-up Typ</label>
+                    <select id="modal-followup-type" class="form-input">
+                        <option value="call">📞 Anruf</option>
+                        <option value="email">📧 Email</option>
+                        <option value="linkedin">💼 LinkedIn Message</option>
+                        <option value="meeting">🤝 Meeting</option>
+                        <option value="proposal">📋 Angebot senden</option>
+                        <option value="checkin">✅ Check-in</option>
+                    </select>
+                </div>
+                <div style="margin-bottom: 16px;">
+                    <label class="form-label">Aktion/Notizen</label>
+                    <textarea id="modal-followup-action" class="form-input" rows="3" placeholder="Was soll bei diesem Follow-up passieren?"></textarea>
+                </div>
+                <div style="margin-bottom: 16px;">
+                    <label class="form-label">Priorität</label>
+                    <select id="modal-followup-priority" class="form-input">
+                        <option value="low">🟢 Niedrig</option>
+                        <option value="medium">🟡 Mittel</option>
+                        <option value="high">🔥 Hoch</option>
+                    </select>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-secondary" onclick="closeFollowupModal()">Abbrechen</button>
+                <button class="btn btn-primary" onclick="saveFollowup()">Follow-up planen</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Application State
+        let leads = [];
+        let currentSort = { column: null, direction: 'asc' };
+        let currentEditingLead = null;
+        let autosaveTimer = null;
+        let hasUnsavedChanges = false;
+        let lastDataHash = null;
+        let currentFollowupLeadIndex = null;
+
+        // Redis Sync Configuration
+        const REDIS_CONFIG = {
+            restUrl: 'https://prime-lacewing-62247.upstash.io',
+            token: 'AfMnAAIncDE2ZDgzMGQ1ZDhlMDE0NjczYWIyOTkzMTM2YjU2ZTY4MXAxNjIyNDc',
+            hashKey: 'lib:leads',
+            syncInterval: 5 * 60 * 1000, // 5 minutes
+            retryAttempts: 3,
+            retryDelay: 1000 // 1 second base delay
+        };
+
+        // Redis Sync Manager
+        class RedisSyncManager {
+            constructor() {
+                this.syncTimer = null;
+                this.hasUnsyncedChanges = false;
+                this.lastSyncTime = this.loadLastSyncTime();
+                this.syncInProgress = false;
+            }
+
+            loadLastSyncTime() {
+                const stored = localStorage.getItem('lastSyncTime');
+                if (stored) {
+                    try {
+                        const syncTime = new Date(stored);
+                        console.log('📅 Loaded last sync time from localStorage:', syncTime.toLocaleString('de-DE'));
+                        return syncTime;
+                    } catch (error) {
+                        console.warn('⚠️ Invalid sync time in localStorage:', stored);
+                    }
+                }
+                return null;
+            }
+
+            saveLastSyncTime(syncTime = new Date()) {
+                const timestamp = syncTime.toISOString();
+                localStorage.setItem('lastSyncTime', timestamp);
+                this.lastSyncTime = syncTime;
+                console.log('💾 Saved last sync time to localStorage:', syncTime.toLocaleString('de-DE'));
+            }
+
+            init() {
+                console.log('🔄 RedisSyncManager initialized', {
+                    redisUrl: REDIS_CONFIG.restUrl,
+                    hashKey: REDIS_CONFIG.hashKey,
+                    lastSyncTime: this.lastSyncTime?.toLocaleString('de-DE')
+                });
+
+                // Always perform initial sync check on app start
+                this.performInitialSync();
+
+                // Start periodic sync timer
+                this.startPeriodicSync();
+
+                // Initialize sync status display with saved time
+                this.updateSyncStatusUI('idle', 'Loaded from localStorage');
+            }
+
+            async performInitialSync() {
+                console.log('🔄 Performing initial Redis sync check on app start');
+                try {
+                    const localData = this.getCurrentData();
+                    const remoteData = await this.receiveRedisData();
+
+                    if (!remoteData) {
+                        console.log('📭 No remote data in Redis');
+                        if (localData.leads && localData.leads.length > 0) {
+                            console.log('📤 Local data found - will upload to Redis');
+                            this.hasUnsyncedChanges = true;
+                            this.updateSyncStatusUI('success', 'Will upload to Redis');
+                        } else {
+                            this.updateSyncStatusUI('success', 'No data to sync');
+                        }
+                        return;
+                    }
+
+                    // Smart bidirectional sync logic
+                    const shouldDownload = this.shouldDownloadFromRedis(localData, remoteData);
+
+                    if (shouldDownload.download) {
+                        console.log('📥 Redis data is newer and safe - downloading');
+                        console.log('🔍 Download decision:', shouldDownload);
+                        this.updateLocalData(remoteData);
+                        this.updateSyncStatusUI('success', 'Downloaded from Redis');
+                    } else {
+                        console.log('📤 Local data current - will upload to Redis');
+                        console.log('🔍 Upload decision:', shouldDownload);
+                        this.hasUnsyncedChanges = true;
+                        this.updateSyncStatusUI('success', 'Will upload to Redis');
+                    }
+
+                } catch (error) {
+                    console.warn('❌ Initial sync check failed:', error);
+                    this.updateSyncStatusUI('error', 'Sync check failed');
+                }
+            }
+
+            startPeriodicSync() {
+                this.syncTimer = setInterval(() => {
+                    if (this.hasUnsyncedChanges && !this.syncInProgress) {
+                        this.performBackgroundSync();
+                    }
+                }, REDIS_CONFIG.syncInterval);
+            }
+
+            async performBackgroundSync() {
+                if (this.syncInProgress) return;
+                
+                this.syncInProgress = true;
+                this.updateSyncStatusUI('syncing', 'Background sync...');
+                
+                try {
+                    console.log('🔄 Background sync: Sending data to Redis');
+                    const currentData = this.getCurrentData();
+
+                    await this.sendRedisData(currentData);
+
+                    this.hasUnsyncedChanges = false;
+                    this.saveLastSyncTime();
+                    this.updateSyncStatusUI('success', 'Redis sync completed');
+
+                    console.log('✅ Background Redis sync completed');
+                } catch (error) {
+                    console.warn('❌ Background Redis sync failed:', error);
+                    this.updateSyncStatusUI('error', 'Redis sync failed');
+                } finally {
+                    this.syncInProgress = false;
+                }
+            }
+
+            async sendRedisData(data) {
+                // Create comprehensive metadata
+                const metadata = {
+                    version: data.settings.dataVersion || new Date().toISOString(),
+                    exportDate: new Date().toISOString(),
+                    totalLeads: data.leads?.length || 0,
+                    format: 'LibraLeads',
+                    source: 'LibraLeads App',
+                    syncedAt: new Date().toISOString()
+                };
+
+                // Prepare data for Redis HASH
+                const hashData = {
+                    leads_data: JSON.stringify(data.leads),
+                    metadata: JSON.stringify(metadata),
+                    lastBackup: new Date().toISOString(), // Always use current timestamp for backup
+                    backupInterval: data.settings.backupInterval || 'daily'
+                };
+
+                // Set each field individually using HSET
+                for (const [field, value] of Object.entries(hashData)) {
+                    const response = await this.makeRedisRequest('hset', [REDIS_CONFIG.hashKey, field, value]);
+                    if (!response.success) {
+                        throw new Error(`Failed to set Redis field '${field}': ${response.error}`);
+                    }
+                }
+
+                console.log('📤 Data sent to Redis:', {
+                    leadsCount: data.leads?.length || 0,
+                    dataVersion: metadata.version,
+                    fieldsUpdated: Object.keys(hashData).length
+                });
+
+                return { success: true, fieldsUpdated: Object.keys(hashData).length };
+            }
+
+            async makeRedisRequest(command, pathArgs = []) {
+                // Build URL with path segments for Upstash REST API
+                const pathSegments = pathArgs.map(arg => encodeURIComponent(arg)).join('/');
+                const url = `${REDIS_CONFIG.restUrl}/${command}${pathSegments ? '/' + pathSegments : ''}`;
+
+                try {
+                    const response = await fetch(url, {
+                        method: 'POST',
+                        headers: {
+                            'Authorization': `Bearer ${REDIS_CONFIG.token}`
+                        }
+                    });
+
+                    if (!response.ok) {
+                        const errorText = await response.text();
+                        throw new Error(`HTTP ${response.status}: ${errorText}`);
+                    }
+
+                    const result = await response.json();
+                    return { success: true, data: result };
+                } catch (error) {
+                    return { success: false, error: error.message };
+                }
+            }
+
+            async receiveRedisData() {
+                const fields = ['leads_data', 'metadata', 'lastBackup', 'backupInterval'];
+                const response = await this.makeRedisRequest('hmget', [REDIS_CONFIG.hashKey, ...fields]);
+
+                if (!response.success) {
+                    console.warn('❌ Failed to retrieve data from Redis:', response.error);
+                    return null;
+                }
+
+                const values = response.data.result || response.data;
+
+                if (!values || values.every(val => val === null)) {
+                    console.log('📭 No data found in Redis - treating as empty');
+                    return null;
+                }
+
+                try {
+                    // Parse the retrieved data
+                    const leads = JSON.parse(values[0] || '[]');
+                    const metadata = JSON.parse(values[1] || '{}');
+                    const lastBackup = values[2];
+                    const backupInterval = values[3];
+
+                    const parsedData = {
+                        leads: leads,
+                        settings: {
+                            dataVersion: metadata.version,
+                            lastBackup: lastBackup,
+                            backupInterval: backupInterval
+                        },
+                        metadata: metadata
+                    };
+
+                    console.log('📦 Retrieved data from Redis:', {
+                        leadsCount: leads.length,
+                        dataVersion: metadata.version,
+                        retrievedAt: new Date().toLocaleString('de-DE')
+                    });
+
+                    return parsedData;
+                } catch (parseError) {
+                    console.warn('⚠️ Failed to parse Redis data:', parseError);
+                    return null;
+                }
+            }
+
+            shouldDownloadFromRedis(localData, remoteData) {
+                const localLeadCount = localData.leads?.length || 0;
+                const remoteLeadCount = remoteData.leads?.length || 0;
+
+                // Get timestamps for comparison
+                const localLastBackup = localData.settings?.lastBackup || '2020-01-01T00:00:00.000Z';
+                const remoteLastBackup = remoteData.settings?.lastBackup || '2020-01-01T00:00:00.000Z';
+
+                const localTimestamp = new Date(localLastBackup);
+                const remoteTimestamp = new Date(remoteLastBackup);
+
+                // Enhanced decision logic for Business Card OCR compatibility
+                const isRemoteNewer = remoteTimestamp > localTimestamp;
+                const hasEnoughData = remoteLeadCount >= localLeadCount;
+
+                // Special handling: If remote is newer, prioritize it even with different lead counts
+                // This handles Business Card OCR additions and other external additions
+                const shouldDownload = isRemoteNewer && (hasEnoughData || remoteLeadCount > localLeadCount);
+
+                console.log('🔍 DETAILED Download Decision Debug:', {
+                    localLeadCount,
+                    remoteLeadCount,
+                    localLastBackup,
+                    remoteLastBackup,
+                    localTimestamp: localTimestamp.toISOString(),
+                    remoteTimestamp: remoteTimestamp.toISOString(),
+                    isRemoteNewer,
+                    hasEnoughData,
+                    remoteHasMore: remoteLeadCount > localLeadCount,
+                    finalDecision: shouldDownload
+                });
+
+                const decision = {
+                    download: shouldDownload,
+                    reason: shouldDownload ?
+                        'Redis backup is newer and has same/more leads' :
+                        (!isRemoteNewer ? 'Local backup is newer or equal' : 'Redis has fewer leads - preventing data loss'),
+                    comparison: {
+                        local: {
+                            lastBackup: localLastBackup,
+                            timestamp: localTimestamp.toLocaleString('de-DE'),
+                            leadCount: localLeadCount
+                        },
+                        redis: {
+                            lastBackup: remoteLastBackup,
+                            timestamp: remoteTimestamp.toLocaleString('de-DE'),
+                            leadCount: remoteLeadCount
+                        },
+                        isRemoteNewer: isRemoteNewer,
+                        hasEnoughData: hasEnoughData
+                    }
+                };
+
+                console.log('🤔 Download decision analysis:', decision);
+                return decision;
+            }
+
+            shouldUseRemoteData(remoteData) {
+                const localData = this.getCurrentData();
+                
+                const localVersion = new Date(localData.settings?.dataVersion || '2020-01-01');
+                const remoteVersion = new Date(remoteData.settings?.dataVersion || '2020-01-01');
+                const useRemote = remoteVersion > localVersion;
+                
+                console.log('🔍 Timestamp-based conflict resolution:', {
+                    localDataVersion: localVersion.toISOString(),
+                    localDataFormatted: localVersion.toLocaleString('de-DE'),
+                    remoteDataVersion: remoteVersion.toISOString(), 
+                    remoteDataFormatted: remoteVersion.toLocaleString('de-DE'),
+                    timeDifference: `${Math.round((remoteVersion - localVersion) / 1000)}s`,
+                    decision: useRemote ? 'USE REMOTE (newer)' : 'USE LOCAL (newer or equal)',
+                    localLeads: localData.leads?.length || 0,
+                    remoteLeads: remoteData.leads?.length || 0
+                });
+                
+                return useRemote;
+            }
+
+            updateLocalData(remoteData) {
+                const oldLeadCount = leads.length;
+
+                // Preserve existing leads array reference for React-like behavior
+                leads.length = 0;
+                leads.push(...(remoteData.leads || []));
+
+                const newLeadCount = leads.length;
+
+                // Update settings while preserving local preferences
+                const currentSettings = JSON.parse(localStorage.getItem('libraLeads') || '{}').settings || {};
+                const newSettings = {
+                    ...currentSettings,
+                    ...remoteData.settings,
+                    lastWebhookReceive: new Date().toISOString()
+                };
+                
+                // Save to localStorage
+                const dataToSave = {
+                    leads: leads,
+                    settings: newSettings
+                };
+                
+                localStorage.setItem('libraLeads', JSON.stringify(dataToSave));
+                
+                // Update hash to prevent immediate re-sync
+                lastDataHash = generateDataHash(dataToSave);
+                
+                // Refresh UI
+                updateFollowupDashboard();
+                updateLeadsTable();
+                
+                console.log('📱 Local data updated from Redis download:', {
+                    oldLeadCount,
+                    newLeadCount,
+                    leadCountChange: newLeadCount - oldLeadCount,
+                    totalLeads: leads.length,
+                    version: newSettings.dataVersion,
+                    uiRefreshed: true
+                });
+            }
+
+            getCurrentData() {
+                // Use the actual last modification timestamp (NOT current time)
+                const lastModificationTime = window.currentDataVersion || new Date().toISOString();
+
+                // Get sekundengenaue lastBackup from libra-leads localStorage (not just date)
+                const storedData = JSON.parse(localStorage.getItem('libra-leads') || '{"leads": [], "settings": {}}');
+                const preciseLastBackup = storedData.settings?.lastBackup || localStorage.getItem('lastBackup') || null;
+
+                console.log('🔍 getCurrentData - lastBackup sources:', {
+                    fromLibraLeads: storedData.settings?.lastBackup,
+                    fromBackupKey: localStorage.getItem('lastBackup'),
+                    finalUsed: preciseLastBackup
+                });
+
+                return {
+                    leads: leads,
+                    settings: {
+                        lastBackup: preciseLastBackup, // ← Now sekundengenaue Zeit!
+                        backupInterval: 'daily',
+                        lastWebhookSend: new Date().toISOString(),
+                        dataVersion: lastModificationTime, // ← Echte letzte Änderung
+                        pendingChanges: this.hasUnsyncedChanges
+                    }
+                };
+            }
+
+            updateSyncStatusUI(status = 'idle', message = null) {
+                const syncElement = document.getElementById('sync-status');
+                const syncIcon = syncElement?.querySelector('.sync-icon');
+                const syncText = syncElement?.querySelector('.sync-text');
+                
+                if (!syncElement) return;
+                
+                // Reset classes
+                syncElement.classList.remove('syncing', 'success', 'error');
+                
+                let displayTime = '--:--';
+                let icon = '●';
+                
+                if (this.lastSyncTime) {
+                    displayTime = this.lastSyncTime.toLocaleTimeString('de-DE', {
+                        hour: '2-digit',
+                        minute: '2-digit'
+                    });
+                }
+                
+                switch (status) {
+                    case 'syncing':
+                        syncElement.classList.add('syncing');
+                        icon = '🔄';
+                        displayTime = 'sync...';
+                        break;
+                    case 'success':
+                        syncElement.classList.add('success');
+                        icon = '✓';
+                        break;
+                    case 'error':
+                        syncElement.classList.add('error');
+                        icon = '✗';
+                        break;
+                }
+                
+                if (syncIcon) syncIcon.textContent = icon;
+                if (syncText) syncText.textContent = `Sync: ${displayTime}`;
+                
+                // Optional: Show tooltip with detailed message
+                if (message) {
+                    syncElement.title = message;
+                }
+            }
+
+            markDataChanged() {
+                this.hasUnsyncedChanges = true;
+                console.log('📝 Data marked as changed - will sync to Redis in', REDIS_CONFIG.syncInterval / 1000 / 60, 'minutes');
+            }
+
+            async performManualSync() {
+                if (this.syncInProgress) {
+                    console.log('⏳ Manual sync skipped - sync already in progress');
+                    return;
+                }
+
+                this.syncInProgress = true;
+                console.log('👆 Manual Redis sync triggered by user');
+                this.updateSyncStatusUI('syncing', 'Checking Redis...');
+
+                try {
+                    // Step 1: Check if Redis has newer data first
+                    console.log('🔍 Manual sync: Checking Redis for newer data');
+                    const localData = this.getCurrentData();
+                    const remoteData = await this.receiveRedisData();
+
+                    if (remoteData) {
+                        const shouldDownload = this.shouldDownloadFromRedis(localData, remoteData);
+
+                        if (shouldDownload.download) {
+                            console.log('📥 Manual sync: Redis has newer data - downloading');
+                            this.updateSyncStatusUI('syncing', 'Downloading from Redis...');
+
+                            const oldCount = this.getCurrentData().leads.length;
+                            this.updateLocalData(remoteData);
+                            const newCount = remoteData.leads?.length || 0;
+                            const countChange = newCount - oldCount;
+
+                            this.hasUnsyncedChanges = false;
+                            this.saveLastSyncTime();
+
+                            const statusMessage = countChange > 0
+                                ? `Downloaded ${countChange} new lead${countChange > 1 ? 's' : ''} from Redis`
+                                : countChange < 0
+                                ? `Synced with Redis (${Math.abs(countChange)} lead${Math.abs(countChange) > 1 ? 's' : ''} removed)`
+                                : 'Downloaded updated data from Redis';
+
+                            this.updateSyncStatusUI('success', statusMessage);
+                            console.log('✅ Manual Redis download completed successfully:', {
+                                oldCount, newCount, countChange
+                            });
+                            return;
+                        }
+                    }
+
+                    // Step 2: Upload local data to Redis (Redis is older or has less data)
+                    console.log('📤 Manual sync: Uploading current local data to Redis');
+                    this.updateSyncStatusUI('syncing', 'Uploading to Redis...');
+
+                    console.log('📋 Manual sync - uploading data with current backup timestamp:', {
+                        totalLeads: localData.leads?.length || 0,
+                        dataVersion: localData.settings.dataVersion,
+                        dataVersionFormatted: new Date(localData.settings.dataVersion).toLocaleString('de-DE'),
+                        syncTime: new Date().toLocaleString('de-DE'),
+                        note: 'Bidirectional sync: Upload after checking Redis',
+                        sampleLead: localData.leads?.[0]?.company || 'No leads'
+                    });
+
+                    await this.sendRedisData(localData);
+
+                    // Success - mark as synced
+                    this.hasUnsyncedChanges = false;
+                    this.saveLastSyncTime();
+                    this.updateSyncStatusUI('success', 'Uploaded to Redis');
+
+                    console.log('✅ Manual Redis upload completed successfully');
+
+                } catch (error) {
+                    console.warn('❌ Manual Redis sync failed:', error);
+                    this.updateSyncStatusUI('error', 'Redis sync failed: ' + error.message);
+                } finally {
+                    this.syncInProgress = false;
+                }
+            }
+        }
+
+        // Initialize Redis sync manager
+        const redisSync = new RedisSyncManager();
+        
+        // LinkedIn PoC Management
+        let linkedinPoCData = null;
+        let pocProgress = {
+            totalLeads: 0,
+            engagedLeads: 0,
+            responsesReceived: 0,
+            completedActions: 0
+        };
+
+        // Load LinkedIn PoC Plan
+        function loadPoCPlan() {
+            console.log('📋 Loading LinkedIn PoC Plan...');
+            
+            // Try to load from localStorage first
+            const storedPoC = localStorage.getItem('linkedinPoCData');
+            if (storedPoC) {
+                try {
+                    linkedinPoCData = JSON.parse(storedPoC);
+                    renderPoCInterface();
+                    return;
+                } catch (error) {
+                    console.warn('⚠️ Error parsing stored PoC data:', error);
+                }
+            }
+            
+            // Load from file (simulated - in real app would be file upload)
+            const samplePoCData = {
+                "created_at": new Date().toISOString(),
+                "purpose": "Gentle LinkedIn PoC für Libra Innovation FlexCo",
+                "total_leads": 4,
+                "estimated_time": "15-20 Minuten",
+                "engagement_plan": [
+                    {
+                        "priority": 1,
+                        "name": "Christoph Prokeš",
+                        "company": "Mission Solar",
+                        "linkedin_url": "https://linkedin.com/in/christoph-prokes",
+                        "location": "Innsbruck, Tyrol",
+                        "automation_potential": "PV + Workflow Automatisierung",
+                        "engagement_hook": "PV-Branche + Automatisierung = spannende Kombination!",
+                        "suggested_actions": ["like", "comment"],
+                        "timing": "8-10 Uhr Geschäftszeiten",
+                        "completed": false,
+                        "actions_taken": [],
+                        "response_notes": ""
+                    },
+                    {
+                        "priority": 2, 
+                        "name": "Beate Hell-Saleh",
+                        "company": "Standortagentur Tirol",
+                        "linkedin_url": "https://linkedin.com/in/beate-hell-saleh",
+                        "location": "Innsbruck, Tirol",
+                        "automation_potential": "Event-Koordination + Stakeholder-Management",
+                        "engagement_hook": "Tirol Business Development + Process-Optimization",
+                        "suggested_actions": ["like", "comment"],
+                        "timing": "8-10 Uhr Geschäftszeiten",
+                        "completed": false,
+                        "actions_taken": [],
+                        "response_notes": ""
+                    },
+                    {
+                        "priority": 3,
+                        "name": "Rüdiger Woerner", 
+                        "company": "Smart Home Woerner GmbH",
+                        "linkedin_url": "https://linkedin.com/in/ruediger-woerner",
+                        "location": "Innsbruck, Tyrol",
+                        "automation_potential": "Smart Home + Business Automation",
+                        "engagement_hook": "Smart Home + Business Automation = perfekte Synergie",
+                        "suggested_actions": ["like"],
+                        "timing": "8-10 Uhr Geschäftszeiten",
+                        "completed": false,
+                        "actions_taken": [],
+                        "response_notes": ""
+                    },
+                    {
+                        "priority": 4,
+                        "name": "Richard Mach",
+                        "company": "Morningside AI", 
+                        "linkedin_url": "https://linkedin.com/in/richard-mach-06313b284",
+                        "location": "Innsbruck, Tyrol",
+                        "automation_potential": "AI Automation Agency Synergies",
+                        "engagement_hook": "AI Automation Agency - interessante Synergien möglich",
+                        "suggested_actions": ["like"],
+                        "timing": "8-10 Uhr Geschäftszeiten", 
+                        "completed": false,
+                        "actions_taken": [],
+                        "response_notes": ""
+                    }
+                ]
+            };
+            
+            linkedinPoCData = samplePoCData;
+            localStorage.setItem('linkedinPoCData', JSON.stringify(linkedinPoCData));
+            
+            renderPoCInterface();
+            console.log('✅ LinkedIn PoC Plan loaded');
+        }
+
+        function renderPoCInterface() {
+            if (!linkedinPoCData) {
+                console.warn('⚠️ No PoC data to render');
+                return;
+            }
+            
+            updatePoCProgress();
+            renderPoCLeads();
+            updatePoCButtons();
+        }
+
+        function updatePoCProgress() {
+            const totalLeads = linkedinPoCData.engagement_plan.length;
+            const completedLeads = linkedinPoCData.engagement_plan.filter(lead => lead.completed).length;
+            const progressPercent = totalLeads > 0 ? (completedLeads / totalLeads) * 100 : 0;
+            
+            document.getElementById('poc-progress-text').textContent = 
+                `Progress: ${completedLeads}/${totalLeads} Leads engaged`;
+            document.getElementById('poc-progress-bar').style.width = `${progressPercent}%`;
+            
+            // Update summary
+            document.getElementById('poc-total-leads').textContent = totalLeads;
+            document.getElementById('poc-engaged-count').textContent = completedLeads;
+            
+            const totalActions = linkedinPoCData.engagement_plan.reduce((sum, lead) => sum + lead.actions_taken.length, 0);
+            document.getElementById('poc-responses-count').textContent = totalActions;
+            
+            // Update next action
+            const nextLead = linkedinPoCData.engagement_plan.find(lead => !lead.completed);
+            if (nextLead) {
+                document.getElementById('poc-next-action').textContent = 
+                    `Engage mit ${nextLead.name} (${nextLead.company})`;
+            } else {
+                document.getElementById('poc-next-action').textContent = 'All leads engaged!';
+            }
+        }
+
+        function renderPoCLeads() {
+            const container = document.getElementById('poc-leads-container');
+            
+            const leadsHTML = linkedinPoCData.engagement_plan.map((lead, index) => `
+                <div class="poc-lead-card" style="background: var(--bg-secondary); padding: 20px; margin: 16px 0; border-radius: 12px; border-left: 4px solid ${lead.completed ? '#34C759' : '#007AFF'};">
+                    <div class="lead-header" style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 16px;">
+                        <div class="lead-info">
+                            <h3 style="margin: 0; color: var(--text-primary);">${lead.name}</h3>
+                            <p style="margin: 4px 0; color: var(--text-secondary); font-size: 14px;">${lead.company} • ${lead.location}</p>
+                            <p style="margin: 4px 0; color: var(--text-secondary); font-size: 13px;">💡 ${lead.automation_potential}</p>
+                        </div>
+                        <div class="priority-badge" style="background: ${lead.priority <= 2 ? '#FF9500' : '#8E8E93'}; color: white; padding: 4px 8px; border-radius: 12px; font-size: 12px;">
+                            Priority ${lead.priority}
+                        </div>
+                    </div>
+                    
+                    <div class="linkedin-link" style="margin: 12px 0;">
+                        <a href="${lead.linkedin_url}" target="_blank" class="btn btn-secondary" style="font-size: 13px; padding: 6px 12px;">
+                            📱 LinkedIn Profile öffnen
+                        </a>
+                    </div>
+                    
+                    <div class="engagement-actions" style="margin: 16px 0;">
+                        <h4 style="margin: 0 0 12px 0; font-size: 14px;">🎯 Engagement Actions:</h4>
+                        ${lead.suggested_actions.map(action => `
+                            <label style="display: flex; align-items: center; margin: 8px 0; cursor: pointer;">
+                                <input type="checkbox" 
+                                       class="poc-action-checkbox" 
+                                       data-lead-index="${index}" 
+                                       data-action="${action}"
+                                       ${lead.actions_taken.includes(action) ? 'checked' : ''}
+                                       onchange="updatePoCAction(${index}, '${action}', this.checked)"
+                                       style="margin-right: 8px;">
+                                <span style="font-size: 14px;">
+                                    ${action === 'like' ? '👍 Like recent business posts' : 
+                                      action === 'comment' ? '💬 Thoughtful comment' : action}
+                                </span>
+                            </label>
+                        `).join('')}
+                    </div>
+                    
+                    <div class="engagement-hook" style="background: var(--bg-primary); padding: 12px; border-radius: 8px; margin: 12px 0;">
+                        <strong style="font-size: 13px;">💬 Comment Hook:</strong>
+                        <p style="margin: 4px 0 0 0; font-size: 13px; font-style: italic;">"${lead.engagement_hook}"</p>
+                    </div>
+                    
+                    <div class="response-notes" style="margin: 12px 0;">
+                        <label style="display: block; font-size: 13px; margin-bottom: 6px;">📝 Response Notes:</label>
+                        <textarea class="form-input poc-notes" 
+                                  data-lead-index="${index}"
+                                  onchange="updatePoCNotes(${index}, this.value)"
+                                  placeholder="Any responses or observations..."
+                                  style="height: 60px; font-size: 13px;">${lead.response_notes || ''}</textarea>
+                    </div>
+                    
+                    <div class="lead-actions" style="margin-top: 16px;">
+                        <button class="btn ${lead.completed ? 'btn-secondary' : 'btn-primary'}" 
+                                onclick="toggleLeadComplete(${index})"
+                                style="font-size: 13px;">
+                            ${lead.completed ? '✅ Completed' : '⏰ Mark Complete'}
+                        </button>
+                        ${lead.completed ? '' : `
+                            <button class="btn btn-accent" 
+                                    onclick="openLinkedInProfile('${lead.linkedin_url}')"
+                                    style="font-size: 13px; margin-left: 8px;">
+                                🚀 Quick Engage
+                            </button>
+                        `}
+                    </div>
+                </div>
+            `).join('');
+            
+            container.innerHTML = leadsHTML;
+        }
+
+        function updatePoCAction(leadIndex, action, isChecked) {
+            if (!linkedinPoCData || !linkedinPoCData.engagement_plan[leadIndex]) return;
+            
+            const lead = linkedinPoCData.engagement_plan[leadIndex];
+            
+            if (isChecked) {
+                if (!lead.actions_taken.includes(action)) {
+                    lead.actions_taken.push(action);
+                }
+            } else {
+                lead.actions_taken = lead.actions_taken.filter(a => a !== action);
+            }
+            
+            // Auto-save PoC progress
+            savePoCProgress();
+            updatePoCProgress();
+            
+            console.log(`📱 PoC Action updated: ${lead.name} - ${action} = ${isChecked}`);
+        }
+
+        function updatePoCNotes(leadIndex, notes) {
+            if (!linkedinPoCData || !linkedinPoCData.engagement_plan[leadIndex]) return;
+            
+            linkedinPoCData.engagement_plan[leadIndex].response_notes = notes;
+            savePoCProgress();
+            
+            console.log(`📝 PoC Notes updated für ${linkedinPoCData.engagement_plan[leadIndex].name}`);
+        }
+
+        function toggleLeadComplete(leadIndex) {
+            if (!linkedinPoCData || !linkedinPoCData.engagement_plan[leadIndex]) return;
+            
+            const lead = linkedinPoCData.engagement_plan[leadIndex];
+            lead.completed = !lead.completed;
+            
+            if (lead.completed && lead.actions_taken.length === 0) {
+                // Auto-check at least one action wenn completing
+                lead.actions_taken.push('like');
+            }
+            
+            savePoCProgress();
+            renderPoCInterface();
+            
+            console.log(`✅ PoC Lead ${lead.completed ? 'completed' : 'reopened'}: ${lead.name}`);
+        }
+
+        function openLinkedInProfile(linkedinUrl) {
+            window.open(linkedinUrl, '_blank');
+            console.log(`🔗 Opened LinkedIn profile: ${linkedinUrl}`);
+        }
+
+        function savePoCProgress() {
+            if (linkedinPoCData) {
+                linkedinPoCData.last_updated = new Date().toISOString();
+                localStorage.setItem('linkedinPoCData', JSON.stringify(linkedinPoCData));
+            }
+        }
+
+        function markAllPoCComplete() {
+            if (!linkedinPoCData) return;
+            
+            linkedinPoCData.engagement_plan.forEach(lead => {
+                if (!lead.completed) {
+                    lead.completed = true;
+                    if (lead.actions_taken.length === 0) {
+                        lead.actions_taken.push('like'); // Minimum action
+                    }
+                }
+            });
+            
+            savePoCProgress();
+            renderPoCInterface();
+            
+            console.log('✅ All PoC leads marked as complete');
+        }
+
+        function exportPoCResults() {
+            if (!linkedinPoCData) return;
+            
+            const results = {
+                export_date: new Date().toISOString(),
+                poc_summary: {
+                    total_leads: linkedinPoCData.engagement_plan.length,
+                    completed_leads: linkedinPoCData.engagement_plan.filter(l => l.completed).length,
+                    total_actions: linkedinPoCData.engagement_plan.reduce((sum, l) => sum + l.actions_taken.length, 0)
+                },
+                detailed_results: linkedinPoCData.engagement_plan,
+                next_steps: generateNextSteps()
+            };
+            
+            const dataStr = JSON.stringify(results, null, 2);
+            const dataBlob = new Blob([dataStr], {type: 'application/json'});
+            
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(dataBlob);
+            link.download = `linkedin-poc-results-${new Date().toISOString().split('T')[0]}.json`;
+            link.click();
+            
+            console.log('📤 PoC results exported');
+        }
+
+        function generateNextSteps() {
+            const completedCount = linkedinPoCData.engagement_plan.filter(l => l.completed).length;
+            const totalCount = linkedinPoCData.engagement_plan.length;
+            
+            if (completedCount === 0) {
+                return ["Start gentle engagement with Priority 1 leads", "Focus on likes before comments", "Track any profile views or responses"];
+            } else if (completedCount < totalCount) {
+                return ["Complete remaining lead engagements", "Monitor responses from engaged leads", "Prepare for systematic outreach scaling"];
+            } else {
+                return ["Analyze engagement results", "Plan A-C-A message sequences", "Scale to 25 messages/day next week", "Activate PhantomBuster automation"];
+            }
+        }
+
+        function updatePoCButtons() {
+            const hasData = linkedinPoCData && linkedinPoCData.engagement_plan.length > 0;
+            const allComplete = hasData && linkedinPoCData.engagement_plan.every(lead => lead.completed);
+            
+            document.getElementById('load-poc-btn').style.display = hasData ? 'none' : 'inline-block';
+            document.getElementById('complete-poc-btn').style.display = hasData && !allComplete ? 'inline-block' : 'none';
+            document.getElementById('export-poc-btn').style.display = hasData ? 'inline-block' : 'none';
+        }
+        
+        // Make it globally available
+        window.redisSync = redisSync;
+
+        // Central function to mark data as modified with current timestamp
+        function markDataModified() {
+            const now = new Date().toISOString();
+
+            // Update dataVersion in current session
+            window.currentDataVersion = now;
+
+            // Update lastBackup timestamp for ALL write operations
+            localStorage.setItem('lastBackup', now);
+
+            // Also update in localStorage data structure
+            const storedData = JSON.parse(localStorage.getItem('libra-leads') || '{"leads": [], "settings": {}}');
+            if (!storedData.settings) storedData.settings = {};
+            storedData.settings.dataVersion = Date.now();
+            storedData.settings.lastBackup = now;
+            localStorage.setItem('libra-leads', JSON.stringify(storedData));
+
+            // Mark for Redis sync
+            if (redisSync) {
+                redisSync.markDataChanged();
+            }
+
+            console.log('📝 Data marked as modified with sekundengenaue lastBackup:', now);
+        }
+
+        // Manual sync trigger function
+        function triggerManualSync() {
+            console.log('🖱️ Sync button clicked - function called');
+            
+            if (!redisSync) {
+                console.error('❌ redisSync not available');
+                alert('Sync system not initialized yet. Please refresh the page.');
+                return;
+            }
+
+            console.log('🔄 redisSync found, calling performManualSync...');
+
+            // Use setTimeout to handle async properly in onclick
+            setTimeout(async () => {
+                try {
+                    if (redisSync.performManualSync) {
+                        await redisSync.performManualSync();
+                    } else {
+                        console.error('❌ performManualSync method not found');
+                        alert('Sync method not available.');
+                    }
+                } catch (error) {
+                    console.error('❌ Error in manual Redis sync:', error);
+                    alert('Redis sync failed: ' + error.message);
+                }
+            }, 0);
+        }
+        
+        // Make the function globally available
+        window.triggerManualSync = triggerManualSync;
+        
+        // Tab Navigation
+        function switchTab(tabName) {
+            // Hide all tab contents
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // Remove active class from all nav tabs
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Show selected tab content
+            const targetContent = document.getElementById(tabName + '-content');
+            if (targetContent) {
+                targetContent.classList.add('active');
+            }
+            
+            // Add active class to clicked nav tab
+            event.target.classList.add('active');
+        }
+
+        // Simple hash function for data comparison (excludes lastModified)
+        function generateDataHash(data) {
+            // Create a copy without lastModified timestamps to avoid hash changes
+            const dataForHash = {
+                leads: data.leads?.map(lead => {
+                    const { lastModified, ...leadWithoutTimestamp } = lead;
+                    return leadWithoutTimestamp;
+                }) || [],
+                settings: data.settings || {}
+            };
+            
+            return JSON.stringify(dataForHash).split('').reduce((a, b) => {
+                a = ((a << 5) - a) + b.charCodeAt(0);
+                return a & a;
+            }, 0);
+        }
+
+        // Debug function - call in console
+        function debugLocalStorage() {
+            const data = localStorage.getItem('libraLeads');
+            console.log('=== DEBUG localStorage ===');
+            console.log('Has data:', !!data);
+            console.log('Data size:', data ? data.length + ' chars' : 'N/A');
+            if (data) {
+                try {
+                    const parsed = JSON.parse(data);
+                    console.log('Lead count:', parsed.leads ? parsed.leads.length : 'No leads');
+                    console.log('First lead:', parsed.leads?.[0]?.id, parsed.leads?.[0]?.company);
+                } catch (e) {
+                    console.log('Parse error:', e.message);
+                }
+            }
+            console.log('Raw data (first 200 chars):', data ? data.substring(0, 200) + '...' : 'NULL');
+        }
+
+        // Initialize Application
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeApp();
+            setupAutosaveListeners();
+        });
+
+        // Theme Toggle
+        function toggleTheme() {
+            const body = document.body;
+            const themeIcon = document.getElementById('theme-icon');
+            const currentTheme = body.getAttribute('data-theme');
+            
+            if (currentTheme === 'dark') {
+                body.removeAttribute('data-theme');
+                themeIcon.textContent = '🌙';
+                localStorage.setItem('theme', 'light');
+            } else {
+                body.setAttribute('data-theme', 'dark');
+                themeIcon.textContent = '☀️';
+                localStorage.setItem('theme', 'dark');
+            }
+        }
+
+        function initializeTheme() {
+            const savedTheme = localStorage.getItem('theme');
+            const themeIcon = document.getElementById('theme-icon');
+            
+            if (savedTheme === 'dark') {
+                document.body.setAttribute('data-theme', 'dark');
+                themeIcon.textContent = '☀️';
+            } else {
+                themeIcon.textContent = '🌙';
+            }
+        }
+
+        function initializeApp() {
+            initializeTheme();
+            loadData();
+            checkDailyBackup();
+            
+            // Initialize current data version from localStorage
+            const storedData = JSON.parse(localStorage.getItem('libraLeads') || '{}');
+            window.currentDataVersion = storedData.settings?.dataVersion || new Date().toISOString();
+            console.log('📅 Initialized currentDataVersion:', window.currentDataVersion);
+
+            // Initialize Redis sync system
+            if (window.redisSync) {
+                redisSync.init();
+            }
+            
+            // Check for GET parameters to auto-add lead
+            checkURLParameters();
+            
+            updateFollowupDashboard();
+            updateLeadsTable();
+        }
+        
+        function checkURLParameters() {
+            console.log('DEBUG: checkURLParameters called');
+            console.log('DEBUG: window.location.search =', window.location.search);
+            
+            const urlParams = new URLSearchParams(window.location.search);
+            console.log('DEBUG: urlParams =', urlParams.toString());
+            
+            // Check if we should add a lead from URL parameters
+            if (urlParams.has('add') || urlParams.has('company')) {
+                console.log('DEBUG: Found add or company parameter');
+                const prefillData = {
+                    company: urlParams.get('company') || '',
+                    contact: urlParams.get('contact') || '',
+                    email: urlParams.get('email') || '',
+                    phone: urlParams.get('phone') || '',
+                    industry: urlParams.get('industry') || '',
+                    painPoint: urlParams.get('painPoint') || urlParams.get('pain') || '',
+                    offering: urlParams.get('offering') || '',
+                    dealSize: urlParams.get('dealSize') || urlParams.get('deal') || '',
+                    source: urlParams.get('source') || 'URL Parameter',
+                    notes: urlParams.get('notes') || '',
+                    priority: urlParams.get('priority') || 'medium',
+                    nextFollowupDate: urlParams.get('followup') || '',
+                    followupAction: urlParams.get('action') || ''
+                };
+                
+                // Only add if we have at least company or email
+                if (prefillData.company || prefillData.email) {
+                    console.log('Adding lead from URL parameters:', prefillData);
+                    showAddLeadForm(prefillData);
+                    
+                    // Clean URL after adding
+                    window.history.replaceState({}, document.title, window.location.pathname);
+                }
+            }
+        }
+
+        // Data Management
+        function loadData() {
+            const savedData = localStorage.getItem('libraLeads');
+            console.log('Loading from localStorage:', !!savedData, savedData ? 'Data exists' : 'No data found');
+            
+            if (savedData) {
+                const data = JSON.parse(savedData);
+                leads = data.leads || [];
+                console.log('Loaded leads:', leads.length, leads[0] ? {
+                    id: leads[0].id,
+                    company: leads[0].company,
+                    responseRate: leads[0].responseRate,
+                    closingProbability: leads[0].closingProbability,
+                    dealSize: leads[0].dealSize,
+                    calculatedARR: Math.round((leads[0].dealSize || 0) * ((leads[0].closingProbability || 50) / 100))
+                } : null);
+                
+                // Ensure all leads have lastModified field and migrate to followupHistory
+                leads.forEach(lead => {
+                    if (!lead.lastModified) {
+                        lead.lastModified = lead.lastContact || new Date().toISOString();
+                    }
+                    
+                    // One-time migration: Convert old follow-up fields to followupHistory array
+                    if (!lead.followupHistory && (lead.nextFollowupDate || lead.followupAction)) {
+                        console.log('Migrating follow-up data for lead:', lead.company);
+                        lead.followupHistory = [];
+                        
+                        // Create simple follow-up history from existing data
+                        if (lead.nextFollowupDate || lead.followupAction) {
+                            lead.followupHistory.push({
+                                date: lead.nextFollowupDate || new Date().toISOString().split('T')[0],
+                                action: lead.followupAction || lead.nextStep || 'Follow-up erforderlich',
+                                done: false  // true = erledigt, false = offen
+                            });
+                        }
+                        
+                        // Mark as migrated to prevent re-migration
+                        lead.followupMigrated = true;
+                    }
+                    
+                    // Ensure followupHistory exists
+                    if (!lead.followupHistory) {
+                        lead.followupHistory = [];
+                    }
+                });
+                
+                // Set initial hash
+                lastDataHash = generateDataHash(data);
+            } else {
+                // Initialize with CSV data if no saved data exists
+                leads = [];
+                console.log('No localStorage data found, initialized empty leads array');
+                
+                // Set initial hash for empty data
+                lastDataHash = generateDataHash({leads: [], settings: {}});
+            }
+        }
+
+        function saveData() {
+            const data = {
+                leads: leads,
+                settings: {
+                    lastBackup: localStorage.getItem('lastBackup') || null,
+                    backupInterval: 'daily',
+                    // Add webhook sync settings
+                    lastWebhookSend: localStorage.getItem('lastWebhookSend') || null,
+                    lastWebhookReceive: localStorage.getItem('lastWebhookReceive') || null,
+                    dataVersion: new Date().toISOString() // Update version on every save
+                }
+            };
+            
+            // Check if data actually changed
+            const currentHash = generateDataHash(data);
+            console.log('SAVE DEBUG:', {
+                lastHash: lastDataHash,
+                currentHash: currentHash,
+                hashesEqual: currentHash === lastDataHash,
+                willSave: currentHash !== lastDataHash
+            });
+            
+            if (currentHash === lastDataHash) {
+                console.log('No data changes detected, skipping save');
+                showSaveStatus('✓ Gespeichert');
+                return;
+            }
+            
+            localStorage.setItem('libraLeads', JSON.stringify(data));
+            lastDataHash = currentHash;
+            
+            // Debug: Log what we're saving
+            console.log('Saving to localStorage:', {
+                leadCount: leads.length,
+                hash: currentHash,
+                dataVersion: data.settings.dataVersion,
+                sampleLead: leads[0] ? {
+                    id: leads[0].id,
+                    company: leads[0].company,
+                    responseRate: leads[0].responseRate,
+                    closingProbability: leads[0].closingProbability,
+                    dealSize: leads[0].dealSize,
+                    calculatedARR: Math.round((leads[0].dealSize || 0) * ((leads[0].closingProbability || 50) / 100))
+                } : null
+            });
+            
+            hasUnsavedChanges = false;
+            showSaveStatus('✓ Gespeichert');
+            
+            // Mark data as changed for Redis sync
+            if (window.redisSync) {
+                redisSync.markDataChanged();
+            }
+        }
+
+        function triggerAutosave() {
+            hasUnsavedChanges = true;
+            // Don't show 'Speichere...' - only show final result
+            
+            // Clear existing timer
+            if (autosaveTimer) {
+                clearTimeout(autosaveTimer);
+            }
+            
+            // Set new timer for 2 seconds
+            autosaveTimer = setTimeout(() => {
+                // Save ALL visible edit fields to their corresponding leads
+                console.log('Autosave: Saving all visible edit fields');
+                
+                // Find all edit fields and save them to their respective leads
+                const allEditFields = document.querySelectorAll('[id^="edit-"]');
+                const processedLeads = new Set();
+                
+                allEditFields.forEach(field => {
+                    const match = field.id.match(/edit-[^-]+-(\d+)/);
+                    if (match) {
+                        const index = parseInt(match[1]);
+                        if (!processedLeads.has(index)) {
+                            processedLeads.add(index);
+                            console.log('Autosave: Updating lead', index);
+                            saveEdit(index);
+                        }
+                    }
+                });
+                
+                if (processedLeads.size === 0) {
+                    console.log('Autosave: No edit fields found');
+                }
+                
+                saveData();
+                // No UI updates needed - inline editing IS the UI update
+            }, 2000);
+        }
+
+        function showSaveStatus(message) {
+            // Create or update save status indicator
+            let statusDiv = document.getElementById('save-status');
+            if (!statusDiv) {
+                statusDiv = document.createElement('div');
+                statusDiv.id = 'save-status';
+                statusDiv.style.cssText = `
+                    position: fixed;
+                    bottom: 20px;
+                    left: 50%;
+                    transform: translateX(-50%);
+                    background: rgba(255, 255, 255, 0.95);
+                    color: var(--text-secondary);
+                    padding: 4px 8px;
+                    border-radius: 8px;
+                    font-size: 11px;
+                    font-weight: 400;
+                    z-index: 1000;
+                    transition: all 0.2s ease;
+                    opacity: 0;
+                    pointer-events: none;
+                    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+                    border: 1px solid #e0e0e2;
+                `;
+                document.body.appendChild(statusDiv);
+            }
+            
+            statusDiv.textContent = message;
+            statusDiv.style.opacity = '0.8';
+            
+            // Schnelleres Ausblenden - weniger intrusive
+            if (message.includes('Gespeichert')) {
+                setTimeout(() => {
+                    statusDiv.style.opacity = '0';
+                }, 1000);
+            } else {
+                // Speichern-Animation nur kurz sichtbar
+                setTimeout(() => {
+                    statusDiv.style.opacity = '0.4';
+                }, 500);
+            }
+        }
+
+        // JSON Import/Export
+        function importJSON(input) {
+            const file = input.files[0];
+            if (!file) return;
+
+            const reader = new FileReader();
+            reader.onload = function(e) {
+                try {
+                    const importData = JSON.parse(e.target.result);
+                    
+                    // Validate JSON structure
+                    if (!importData.leads || !Array.isArray(importData.leads)) {
+                        alert('Ungültige JSON-Struktur: "leads" Array fehlt');
+                        return;
+                    }
+                    
+                    let newLeads = [];
+                    let duplicateIds = [];
+                    let skippedOlder = [];
+                    
+                    for (const importLead of importData.leads) {
+                        if (importLead.email && importLead.company) {
+                            // Check for duplicate emails (natural unique identifier)
+                            const existingLead = leads.find(l => l.email === importLead.email);
+                            if (existingLead) {
+                                // Check if import data is older than existing data
+                                const existingDate = new Date(existingLead.lastModified || existingLead.lastContact || '2020-01-01');
+                                const importDate = new Date(importLead.lastContact || importLead.firstContact || '2020-01-01');
+                                
+                                if (importDate < existingDate) {
+                                    // Import data is older - ask user
+                                    const shouldUpdate = confirm(
+                                        `WARNUNG: Lead "${importLead.company}" (${importLead.email}):\n\n` +
+                                        `Import-Datum: ${importDate.toLocaleDateString()}\n` +
+                                        `Bestehende Daten: ${existingDate.toLocaleDateString()}\n\n` +
+                                        `Die zu importierenden Daten sind älter als die vorhandenen!\n` +
+                                        `Trotzdem überschreiben?`
+                                    );
+                                    
+                                    if (shouldUpdate) {
+                                        duplicateIds.push(importLead.email);
+                                        Object.assign(existingLead, importLead);
+                                    } else {
+                                        skippedOlder.push(importLead.email);
+                                    }
+                                } else {
+                                    // Import data is newer or same - safe to update
+                                    duplicateIds.push(importLead.email);
+                                    Object.assign(existingLead, importLead);
+                                }
+                            } else {
+                                newLeads.push(importLead);
+                            }
+                        }
+                    }
+                    
+                    // Add new leads to existing ones
+                    const oldCount = leads.length;
+                    leads = leads.concat(newLeads);
+                    const newCount = leads.length;
+                    
+                    console.log('JSON Import DEBUG:', {
+                        oldLeadCount: oldCount,
+                        newLeadsToAdd: newLeads.length,
+                        finalLeadCount: newCount,
+                        expectedCount: oldCount + newLeads.length
+                    });
+                    
+                    // Force save by resetting hash
+                    lastDataHash = null;
+                    
+                    console.log('Saving imported leads to localStorage...');
+                    saveData();
+                    
+                    console.log('Updating UI after import...');
+                    updateFollowupDashboard();
+                    updateLeadsTable();
+                    
+                    console.log('Final localStorage check:', {
+                        storedLeads: JSON.parse(localStorage.getItem('libraLeads') || '{}').leads?.length || 0,
+                        memoryLeads: leads.length
+                    });
+                    
+                    if (newLeads.length > 0 || duplicateIds.length > 0 || skippedOlder.length > 0) {
+                        let message = '';
+                        if (newLeads.length > 0) {
+                            message += `${newLeads.length} neue Leads importiert`;
+                        }
+                        if (duplicateIds.length > 0) {
+                            message += (message ? ', ' : '') + `${duplicateIds.length} bestehende Leads aktualisiert`;
+                        }
+                        if (skippedOlder.length > 0) {
+                            message += (message ? ', ' : '') + `${skippedOlder.length} veraltete Leads übersprungen`;
+                        }
+                        alert(message);
+                        // Switch to leads tab to show results
+                        switchTab('leads');
+                    } else {
+                        alert('Keine neuen Leads gefunden.');
+                    }
+                } catch (error) {
+                    console.error('JSON Import Error:', error);
+                    alert('Fehler beim JSON-Import: ' + error.message);
+                }
+            };
+            reader.readAsText(file);
+        }
+
+        function parseCSVLine(line) {
+            const result = [];
+            let current = '';
+            let inQuotes = false;
+            
+            for (let i = 0; i < line.length; i++) {
+                const char = line[i];
+                if (char === '"') {
+                    // Handle escaped quotes
+                    if (inQuotes && line[i + 1] === '"') {
+                        current += '"';
+                        i++; // Skip next quote
+                    } else {
+                        inQuotes = !inQuotes;
+                    }
+                } else if (char === ',' && !inQuotes) {
+                    result.push(current.trim().replace(/^"(.*)"$/, '$1'));
+                    current = '';
+                } else {
+                    current += char;
+                }
+            }
+            result.push(current.trim().replace(/^"(.*)"$/, '$1'));
+            return result;
+        }
+
+        function csvToLead(headers, values) {
+            const lead = {
+                id: values[0] || '',
+                company: values[1] || '',
+                contact: values[2] || '',
+                position: values[3] || '',
+                email: values[4] || '',
+                linkedin: values[5] || '',
+                phone: values[6] || '',
+                industry: values[7] || '',
+                priority: mapPriority(values[8] || ''),
+                painPoint: values[9] || '',
+                offering: values[10] || '',
+                status: mapStatus(values[11] || ''),
+                firstContact: values[12] || '',
+                lastContact: values[13] || '',
+                responseRate: values[14] || '',
+                nextStep: values[15] || '',
+                nextFollowupDate: calculateNextFollowup(values[15]),
+                nextFollowupTime: '09:00',
+                followupAction: values[15] || '',
+                followupPriority: mapPriority(values[8] || ''),
+                meetingBooked: values[16] || null,
+                dealSize: parseInt(values[17]) || 0,
+                notes: values[18] || '',
+                source: values[19] || '',
+                energyInterest: values[20] === 'Ja',
+                closingProbability: 50, // Default 50%
+                // Hormozi Sales Metrics - Defaults
+                painLevel: 5, // Medium pain
+                budgetStatus: 'unknown',
+                decisionMaker: 'unknown', 
+                leadTemperature: 'warm',
+                timeline: 'unclear',
+                contractLength: 'monthly',
+                upsellPotential: 'medium',
+                referralValue: 'small',
+                lastModified: new Date().toISOString()
+            };
+            return lead;
+        }
+
+        function mapPriority(csvPriority) {
+            if (csvPriority.includes('Hoch') || csvPriority.includes('🔥')) return 'high';
+            if (csvPriority.includes('Mittel') || csvPriority.includes('🟡')) return 'medium';
+            return 'low';
+        }
+
+        function mapStatus(csvStatus) {
+            if (csvStatus.includes('Neu') || csvStatus.includes('🆕')) return 'new';
+            if (csvStatus.includes('Email') || csvStatus.includes('📧')) return 'email_sent';
+            if (csvStatus.includes('Response') || csvStatus.includes('💬')) return 'response';
+            if (csvStatus.includes('Meeting') || csvStatus.includes('💼')) return 'meeting';
+            if (csvStatus.includes('Kein') || csvStatus.includes('🚫')) return 'no_interest';
+            return 'new';
+        }
+
+        function getNextActiveFollowupDate(lead) {
+            const activeFollowup = getActiveFollowup(lead);
+            return activeFollowup ? activeFollowup.date : null;
+        }
+        
+        function getNextActiveFollowupAction(lead) {
+            const activeFollowup = getActiveFollowup(lead);
+            return activeFollowup ? activeFollowup.action : '';
+        }
+        
+        function calculateNextFollowup(nextStep) {
+            if (!nextStep) return null;
+            
+            const today = new Date();
+            if (nextStep.toLowerCase().includes('heute')) {
+                return today.toISOString().split('T')[0];
+            } else if (nextStep.toLowerCase().includes('morgen')) {
+                const tomorrow = new Date(today);
+                tomorrow.setDate(tomorrow.getDate() + 1);
+                return tomorrow.toISOString().split('T')[0];
+            } else if (nextStep.toLowerCase().includes('freitag')) {
+                const friday = new Date(today);
+                const daysToFriday = (5 - today.getDay() + 7) % 7;
+                friday.setDate(today.getDate() + (daysToFriday === 0 ? 7 : daysToFriday));
+                return friday.toISOString().split('T')[0];
+            } else {
+                // Default to 3 days from now
+                const defaultDate = new Date(today);
+                defaultDate.setDate(today.getDate() + 3);
+                return defaultDate.toISOString().split('T')[0];
+            }
+        }
+
+
+        // Daily Backup System - wird automatisch beim Laden aufgerufen
+        function checkDailyBackup() {
+            const today = new Date().toISOString().split('T')[0];
+            createDailyBackupIfNeeded(today);
+        }
+
+        // Follow-up History Management - KISS Version
+        function getActiveFollowup(lead) {
+            if (!lead.followupHistory || lead.followupHistory.length === 0) return null;
+            return lead.followupHistory.find(f => !f.done);
+        }
+        
+        function addFollowup(leadIndex, date, action) {
+            const lead = leads[leadIndex];
+            if (!lead.followupHistory) lead.followupHistory = [];
+            
+            lead.followupHistory.push({
+                date: date,
+                action: action,
+                done: false
+            });
+            
+            saveData();
+        }
+        
+        function completeFollowup(leadIndex, followupIndex) {
+            const lead = leads[leadIndex];
+            if (lead.followupHistory && lead.followupHistory[followupIndex]) {
+                lead.followupHistory[followupIndex].done = true;
+                saveData();
+                updateFollowupDashboard();
+                updateLeadsTable();
+            }
+        }
+
+        function exportJSON() {
+            // Erstelle heute's Backup wenn noch nicht vorhanden
+            const today = new Date().toISOString().split('T')[0];
+            createDailyBackupIfNeeded(today);
+            
+            const exportData = {
+                metadata: {
+                    exportDate: new Date().toISOString(),
+                    version: '1.0',
+                    totalLeads: leads.length,
+                    format: 'LibraLeads JSON'
+                },
+                settings: {
+                    lastBackup: localStorage.getItem('lastBackup') || null,
+                    backupInterval: 'daily'
+                },
+                leads: leads.map(lead => ({
+                    // Exportiere alle Lead-Daten inklusive Follow-up Felder
+                    ...lead
+                }))
+            };
+            
+            const jsonString = JSON.stringify(exportData, null, 2);
+            const blob = new Blob([jsonString], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `libra-leads-export-${today}.json`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            URL.revokeObjectURL(url);
+            showSaveStatus('✓ JSON Export erstellt');
+        }
+
+        function createDailyBackupIfNeeded(todayDate) {
+            const lastBackupKey = 'lastBackup';
+            const lastBackup = localStorage.getItem(lastBackupKey);
+            const now = new Date().toISOString();
+
+            // Check if we need daily backup (compare date part only)
+            const lastBackupDate = lastBackup ? lastBackup.split('T')[0] : null;
+            const currentDate = todayDate;
+
+            if (!lastBackupDate || lastBackupDate !== currentDate) {
+                console.log('Creating daily backup for', currentDate, 'with sekundengenaue timestamp');
+
+                // Erstelle Backup im /logs Ordner mit sekundengenauen Timestamps
+                const backupData = {
+                    backupDate: now, // Sekundengenaue Zeit
+                    leads: leads,
+                    settings: {
+                        lastBackup: now, // Sekundengenaue Zeit statt nur Datum
+                        backupInterval: 'daily'
+                    }
+                };
+                
+                const jsonString = JSON.stringify(backupData, null, 2);
+                const blob = new Blob([jsonString], { type: 'application/json' });
+                const url = URL.createObjectURL(blob);
+                
+                // Automatisch herunterladen für /logs Ordner Simulation
+                const link = document.createElement('a');
+                link.href = url;
+                link.download = `logs/libra-leads-backup-${todayDate}.json`;
+                link.style.display = 'none';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                
+                URL.revokeObjectURL(url);
+                
+                // Update localStorage backup timestamp with sekundengenaue Zeit
+                localStorage.setItem(lastBackupKey, now);
+                console.log(`Daily backup created for ${currentDate} with timestamp ${now}`);
+            } else {
+                console.log('Daily backup already exists for', todayDate);
+            }
+        }
+
+        // Follow-up Dashboard
+        function updateFollowupDashboard() {
+            const today = new Date().toISOString().split('T')[0];
+            const weekFromNow = new Date();
+            weekFromNow.setDate(weekFromNow.getDate() + 7);
+            const weekDate = weekFromNow.toISOString().split('T')[0];
+            
+            const futureFromNow = new Date();
+            futureFromNow.setDate(futureFromNow.getDate() + 30);
+            const futureDate = futureFromNow.toISOString().split('T')[0];
+
+            // Filter leads by follow-up dates (only leads with active follow-ups)
+            const todayFollowups = leads.filter(lead => 
+                lead.nextFollowupDate === today
+            );
+
+            const weekFollowups = leads.filter(lead => 
+                lead.nextFollowupDate > today && lead.nextFollowupDate <= weekDate
+            );
+            
+            const futureFollowups = leads.filter(lead => 
+                lead.nextFollowupDate > weekDate && lead.nextFollowupDate <= futureDate
+            );
+
+            const overdueFollowups = leads.filter(lead => 
+                lead.nextFollowupDate && lead.nextFollowupDate < today
+            );
+            
+            console.log('DEBUG Dashboard Filter:', {
+                today: today,
+                weekDate: weekDate,
+                moritzDate: leads.find(l => l.company === 'Workhome Digital')?.nextFollowupDate,
+                weekFollowups: weekFollowups.map(l => ({ company: l.company, date: l.nextFollowupDate }))
+            });
+
+            renderFollowups('today-followups', 'today-count', todayFollowups);
+            renderFollowups('week-followups', 'week-count', weekFollowups);
+            renderFollowups('future-followups', 'future-count', futureFollowups);
+            renderFollowups('overdue-followups', 'overdue-count', overdueFollowups);
+        }
+
+        function renderFollowups(containerId, countId, followups) {
+            const container = document.getElementById(containerId);
+            const countBadge = document.getElementById(countId);
+            
+            countBadge.textContent = followups.length;
+            
+            if (followups.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <h3>Keine Follow-ups</h3>
+                        <p>Alles erledigt!</p>
+                    </div>
+                `;
+                return;
+            }
+            
+            container.innerHTML = followups.map(lead => `
+                <div class="followup-item ${lead.followupPriority}">
+                    <div class="followup-header">
+                        <div class="followup-company">${lead.company}</div>
+                        <div class="followup-time">${lead.nextFollowupDate} ${lead.nextFollowupTime || '09:00'}</div>
+                    </div>
+                    <div class="followup-action">${lead.followupAction}</div>
+                    <div class="followup-actions">
+                        <button class="btn btn-primary btn-small" onclick="completeFollowup('${lead.email}')">Erledigt</button>
+                        <button class="btn btn-secondary btn-small" onclick="rescheduleFollowup('${lead.email}')">Verschieben</button>
+                        ${!lead.gcalAdded ? 
+                            '<button class="btn btn-secondary btn-small" onclick="addToGoogleCalendar(\''+lead.email+'\')" style="opacity: 0.8;">GCal +</button>' : 
+                            '<span class="btn btn-disabled btn-small" style="opacity: 0.5; cursor: default;">✓ GCal</span>'
+                        }
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Hilfsfunktion: Prüft ob Lead ein aktives (offenes) Follow-up hat
+        function hasActiveFollowup(lead) {
+            return lead.followupHistory && lead.followupHistory.some(f => !f.done);
+        }
+
+        // Hilfsfunktion: Follow-up in History aktualisieren oder hinzufügen
+        function updateFollowupHistory(lead) {
+            if (!lead.followupHistory) lead.followupHistory = [];
+            
+            // Nur bearbeiten wenn es ein aktives Follow-up gibt
+            if (lead.nextFollowupDate && lead.followupAction) {
+                // Suche nach offenem Follow-up in History
+                const openFollowup = lead.followupHistory.find(f => !f.done);
+                
+                if (openFollowup) {
+                    // Aktualisiere bestehendes offenes Follow-up
+                    openFollowup.date = lead.nextFollowupDate;
+                    openFollowup.time = lead.nextFollowupTime;
+                    openFollowup.action = lead.followupAction;
+                    openFollowup.priority = lead.followupPriority;
+                    console.log('📝 Updated existing follow-up in history:', lead.followupAction);
+                } else {
+                    // Erstelle neues Follow-up in History
+                    lead.followupHistory.push({
+                        date: lead.nextFollowupDate,
+                        time: lead.nextFollowupTime,
+                        action: lead.followupAction,
+                        priority: lead.followupPriority,
+                        done: false,
+                        createdDate: new Date().toISOString().split('T')[0]
+                    });
+                    console.log('📝 Added new follow-up to history:', lead.followupAction);
+                }
+            }
+        }
+
+        function completeFollowup(leadEmail) {
+            const lead = leads.find(l => l.email === leadEmail);
+            if (!lead) return;
+            
+            console.log('✅ Follow-up completed for:', lead.company);
+            
+            // Das aktuelle Follow-up in History als erledigt markieren
+            if (lead.followupHistory && lead.followupHistory.length > 0) {
+                // Das letzte (aktuelle) Follow-up auf done=true setzen
+                const currentFollowup = lead.followupHistory[lead.followupHistory.length - 1];
+                if (!currentFollowup.done) {
+                    currentFollowup.done = true;
+                    currentFollowup.completedDate = new Date().toISOString().split('T')[0];
+                    console.log('📚 Marked latest follow-up in history as done');
+                }
+            }
+            
+            // Follow-up aus Stammdaten entfernen
+            lead.nextFollowupDate = null;
+            lead.nextFollowupTime = null; 
+            lead.followupAction = null;
+            lead.followupPriority = null;
+            
+            // Last contact aktualisieren
+            lead.lastContact = new Date().toISOString().split('T')[0];
+            lead.lastModified = new Date().toISOString();
+            
+            // Mark data as modified for sync
+            markDataModified();
+            
+            // Dashboard und Liste aktualisieren
+            updateFollowupDashboard();
+            updateLeadsTable();
+            
+            // Autosave
+            triggerAutosave();
+            
+            // Kurze Bestätigung
+            showSaveStatus(`✅ Follow-up für ${lead.company} erledigt`);
+        }
+
+        function rescheduleFollowup(leadEmail, days = null) {
+            const lead = leads.find(l => l.email === leadEmail);
+            if (!lead) return;
+            
+            if (days === null) {
+                // Show quick reschedule buttons
+                showRescheduleButtons(leadEmail);
+                return;
+            }
+            
+            // Reschedule with specified days
+            const currentDate = new Date(lead.nextFollowupDate || new Date());
+            const newDate = new Date(currentDate);
+            newDate.setDate(newDate.getDate() + days);
+            
+            const dayLabels = {
+                1: '+1 Tag',
+                3: '+3 Tage', 
+                7: '+1 Woche',
+                14: '+2 Wochen'
+            };
+            
+            lead.nextFollowupDate = newDate.toISOString().split('T')[0];
+            lead.followupAction = (lead.followupAction || 'Follow-up') + ` (${dayLabels[days] || '+' + days + ' Tage'})`;
+            lead.gcalAdded = false; // Reset GCal flag for new date
+            lead.lastModified = new Date().toISOString();
+            
+            // Follow-up in History aktualisieren
+            updateFollowupHistory(lead);
+            
+            // Mark data as modified for sync
+            markDataModified();
+            
+            triggerAutosave();
+            updateFollowupDashboard();
+            updateLeadsTable();
+        }
+        
+        function showRescheduleButtons(leadEmail) {
+            const lead = leads.find(l => l.email === leadEmail);
+            if (!lead) return;
+            
+            // Create overlay with buttons
+            const overlay = document.createElement('div');
+            overlay.style.cssText = `
+                position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+                background: rgba(0,0,0,0.5); display: flex; align-items: center; 
+                justify-content: center; z-index: 1000;
+            `;
+            
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                background: var(--bg-secondary); padding: 30px; border-radius: 12px; 
+                box-shadow: 0 10px 30px rgba(0,0,0,0.3); max-width: 400px;
+            `;
+            
+            modal.innerHTML = `
+                <h3 style="margin: 0 0 20px 0; color: var(--text-primary);">Follow-up verschieben</h3>
+                <p style="margin: 0 0 25px 0; color: var(--text-secondary);">${lead.company}</p>
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <button onclick="rescheduleFollowup('${leadEmail}', 1); closeRescheduleModal()" 
+                            style="padding: 12px; border: 1px solid var(--border-color); border-radius: 8px; background: var(--bg-secondary); color: var(--text-primary); cursor: pointer; font-weight: 500;">
+                        +1 Tag
+                    </button>
+                    <button onclick="rescheduleFollowup('${leadEmail}', 3); closeRescheduleModal()" 
+                            style="padding: 12px; border: 1px solid var(--border-color); border-radius: 8px; background: var(--bg-secondary); color: var(--text-primary); cursor: pointer; font-weight: 500;">
+                        +3 Tage
+                    </button>
+                    <button onclick="rescheduleFollowup('${leadEmail}', 7); closeRescheduleModal()" 
+                            style="padding: 12px; border: 1px solid #007aff; border-radius: 8px; background: #007aff; color: white; cursor: pointer; font-weight: 500;">
+                        +1 Woche
+                    </button>
+                    <button onclick="rescheduleFollowup('${leadEmail}', 14); closeRescheduleModal()" 
+                            style="padding: 12px; border: 1px solid var(--border-color); border-radius: 8px; background: var(--bg-secondary); color: var(--text-primary); cursor: pointer; font-weight: 500;">
+                        +2 Wochen
+                    </button>
+                </div>
+                <button onclick="closeRescheduleModal()" 
+                        style="width: 100%; margin-top: 20px; padding: 12px; border: 1px solid var(--border-color); border-radius: 8px; background: var(--bg-secondary); color: var(--text-primary); cursor: pointer;">
+                    Abbrechen
+                </button>
+            `;
+            
+            overlay.appendChild(modal);
+            document.body.appendChild(overlay);
+            overlay.id = 'rescheduleModal';
+        }
+        
+        function closeRescheduleModal() {
+            const modal = document.getElementById('rescheduleModal');
+            if (modal) {
+                modal.remove();
+            }
+        }
+        
+        function addToGoogleCalendar(leadEmail) {
+            const lead = leads.find(l => l.email === leadEmail);
+            if (!lead) return;
+            
+            // Google Calendar URL format
+            const followupDate = new Date(lead.nextFollowupDate + 'T' + (lead.nextFollowupTime || '09:00'));
+            const endDate = new Date(followupDate.getTime() + 30 * 60000); // +30 minutes
+            
+            const params = new URLSearchParams({
+                action: 'TEMPLATE',
+                text: `Follow-up: ${lead.company}`,
+                dates: formatGoogleCalendarDate(followupDate) + '/' + formatGoogleCalendarDate(endDate),
+                details: `Follow-up mit ${lead.contact}\n\n` +
+                        `Aktion: ${lead.followupAction}\n` +
+                        `Email: ${lead.email}\n` +
+                        `Phone: ${lead.phone || 'N/A'}\n\n` +
+                        `Notes: ${lead.notes || 'Keine weiteren Notizen'}`,
+                location: lead.linkedin ? `LinkedIn: ${lead.linkedin}` : ''
+            });
+            
+            const googleCalendarUrl = `https://calendar.google.com/calendar/render?${params.toString()}`;
+            window.open(googleCalendarUrl, '_blank');
+            
+            // Set flag and save
+            lead.gcalAdded = true;
+            lead.lastModified = new Date().toISOString();
+            saveData();
+            updateFollowupDashboard();
+            
+            // Visual feedback
+            showSaveStatus('✓ Google Calendar Termin erstellt');
+        }
+        
+        function formatGoogleCalendarDate(date) {
+            // Format: YYYYMMDDTHHMMSSZ
+            return date.toISOString().replace(/[-:]/g, '').split('.')[0] + 'Z';
+        }
+
+        // Lead Management
+        function updateLeadsTable(filteredLeads = null) {
+            const tbody = document.getElementById('leadsTableBody');
+            const displayLeads = filteredLeads || leads;
+            
+            if (displayLeads.length === 0) {
+                tbody.innerHTML = `
+                    <tr>
+                        <td colspan="7" class="empty-state">
+                            <h3>Keine Leads vorhanden</h3>
+                            <p>Importiere eine CSV-Datei oder füge neue Leads hinzu</p>
+                        </td>
+                    </tr>
+                `;
+                return;
+            }
+            
+            tbody.innerHTML = displayLeads.map((lead, displayIndex) => {
+                const originalIndex = leads.findIndex(l => l.email === lead.email);
+                return `
+                <tr id="lead-row-${originalIndex}" onclick="toggleEdit(${originalIndex})" ${currentEditingLead === lead ? 'class="edit-row"' : ''}>
+                    <td>
+                        <div style="display: flex; align-items: center;">
+                            <span class="priority-indicator priority-${lead.priority}"></span>
+                            ${lead.company}
+                        </div>
+                    </td>
+                    <td>${lead.contact}<br><small style="color: var(--text-secondary);">${lead.email}</small></td>
+                    <td><span class="status-indicator status-${lead.status}" title="${getStatusTooltip(lead.status)}">${getStatusLabel(lead.status)}</span></td>
+                    <td>${getPriorityLabel(lead.priority)}</td>
+                    <td>
+                        ${lead.nextFollowupDate ? 
+                            `<strong>${lead.nextFollowupDate}</strong><br><small>${lead.followupAction || 'Follow-up'}</small>` : 
+                            '<span style="color: var(--text-secondary);">Nicht geplant</span>'
+                        }
+                    </td>
+                    <td>${lead.dealSize ? '€' + lead.dealSize.toLocaleString() : '-'}</td>
+                    <td>
+                        ${!hasActiveFollowup(lead) ? 
+                            `<button class="btn btn-followup btn-small" onclick="event.stopPropagation(); scheduleFollowup('${lead.email}')">Follow-up</button>` : 
+                            `<span style="color: var(--text-secondary); font-size: 12px;">Follow-up aktiv</span>`
+                        }
+                    </td>
+                </tr>
+                <tr id="edit-row-${originalIndex}" class="inline-edit ${currentEditingLead === lead ? 'active' : ''}">
+                    <td colspan="7">
+                        <div class="edit-form">
+                            <!-- Quick Edit - Grouped Fields -->
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 16px;">
+                                <!-- Left Group: Lead Management -->
+                                <div style="display: grid; grid-template-columns: 1fr 1fr 1.5fr; gap: 12px;">
+                                    <div class="edit-field">
+                                        <div class="edit-label">Status</div>
+                                        <select class="edit-select" id="edit-status-${originalIndex}">
+                                            <option value="new" ${lead.status === 'new' ? 'selected' : ''}>🆕 Neu</option>
+                                            <option value="email_sent" ${lead.status === 'email_sent' ? 'selected' : ''}>📧 Email gesendet</option>
+                                            <option value="response" ${lead.status === 'response' ? 'selected' : ''}>💬 Response</option>
+                                            <option value="meeting" ${lead.status === 'meeting' ? 'selected' : ''}>💼 Meeting</option>
+                                            <option value="no_interest" ${lead.status === 'no_interest' ? 'selected' : ''}>🚫 Kein Interesse</option>
+                                        </select>
+                                    </div>
+                                    <div class="edit-field">
+                                        <div class="edit-label">Priorität</div>
+                                        <select class="edit-select" id="edit-priority-${originalIndex}">
+                                            <option value="low" ${lead.priority === 'low' ? 'selected' : ''}>🟢 Niedrig</option>
+                                            <option value="medium" ${lead.priority === 'medium' ? 'selected' : ''}>🟡 Mittel</option>
+                                            <option value="high" ${lead.priority === 'high' ? 'selected' : ''}>🔥 Hoch</option>
+                                        </select>
+                                    </div>
+                                    <div class="edit-field">
+                                        <div class="edit-label">Next Follow-up</div>
+                                        <div style="display: flex; gap: 4px;">
+                                            <input type="date" class="edit-input" id="edit-followup-date-${originalIndex}" value="${lead.nextFollowupDate || ''}" style="flex: 1;">
+                                            ${!hasActiveFollowup(lead) ? 
+                                                `<button class="btn-mini" onclick="openFollowupModal(${originalIndex})" style="padding: 6px 8px; font-size: 10px;">📅</button>` :
+                                                `<span style="padding: 6px 8px; font-size: 10px; color: var(--text-secondary);">Aktiv</span>`
+                                            }
+                                        </div>
+                                    </div>
+                                </div>
+                                
+                                <!-- Right Group: Action & Revenue -->
+                                <div style="display: grid; grid-template-columns: 1.2fr 0.8fr 0.8fr 1fr; gap: 12px;">
+                                    <div class="edit-field">
+                                        <div class="edit-label">Follow-up Aktion</div>
+                                        <select class="edit-select" id="edit-followup-action-${originalIndex}">
+                                            <option value="Email Follow-up" ${(lead.followupAction === 'Email Follow-up' || !lead.followupAction) ? 'selected' : ''}>📧 Email Follow-up</option>
+                                            <option value="Follow-up Call" ${lead.followupAction === 'Follow-up Call' ? 'selected' : ''}>📞 Call</option>
+                                            <option value="LinkedIn Message" ${lead.followupAction === 'LinkedIn Message' ? 'selected' : ''}>💼 LinkedIn</option>
+                                            <option value="Meeting Request" ${lead.followupAction === 'Meeting Request' ? 'selected' : ''}>📅 Meeting</option>
+                                            <option value="Proposal Follow-up" ${lead.followupAction === 'Proposal Follow-up' ? 'selected' : ''}>📄 Proposal</option>
+                                            <option value="Check-in" ${lead.followupAction === 'Check-in' ? 'selected' : ''}>🔄 Check-in</option>
+                                        </select>
+                                    </div>
+                                    <div class="edit-field">
+                                        <div class="edit-label">Deal Size</div>
+                                        <input type="number" class="edit-input small" id="edit-dealsize-${originalIndex}" value="${lead.dealSize || ''}" min="0" onchange="updateARR(${originalIndex})">
+                                    </div>
+                                    <div class="edit-field">
+                                        <div class="edit-label tooltip">Closing %
+                                            <span class="tooltiptext">Wahrscheinlichkeit dass dieser Lead zum Kunden wird (0-100%). Beeinflusst die ARR-Berechnung.</span>
+                                        </div>
+                                        <input type="number" class="edit-input small" id="edit-closingprob-${originalIndex}" value="${lead.closingProbability || 50}" min="0" max="100" onchange="updateARR(${originalIndex})">
+                                    </div>
+                                    <div class="edit-field">
+                                        <div class="edit-label tooltip">ARR (calc)
+                                            <span class="tooltiptext">Annual Recurring Revenue = Deal Size × Closing %. Wird automatisch berechnet.</span>
+                                        </div>
+                                        <div class="edit-input small" id="edit-arr-${originalIndex}" style="background: var(--bg-primary); border: 1px dashed var(--border-color); display: flex; align-items: center; justify-content: flex-start; color: var(--text-secondary); font-size: 12px;">€0</div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 16px; align-items: start; margin-bottom: 12px;">
+                                <div class="edit-field">
+                                    <div class="edit-label tooltip">Next Step (Details)
+                                        <span class="tooltiptext">Spezifische Informationen zur Follow-up Aktion: "Case Study mitschicken", "Nach Budget fragen", etc.</span>
+                                    </div>
+                                    <textarea class="edit-input edit-textarea" id="edit-nextstep-${originalIndex}" style="height: 60px;" placeholder="z.B. Case Study mitschicken und nach Budget fragen">${lead.nextStep || ''}</textarea>
+                                </div>
+                                <div class="edit-field">
+                                    <div class="edit-label">Notizen</div>
+                                    <textarea class="edit-input edit-textarea" id="edit-notes-${originalIndex}" style="height: 60px;" placeholder="Wichtige Notizen zu diesem Lead...">${lead.notes || ''}</textarea>
+                                </div>
+                            </div>
+
+                            <!-- Extended Edit - Setup & seltener bearbeitete Felder -->
+                            <div class="edit-extended" id="edit-extended-${originalIndex}">
+                                <!-- Standard Fields Grid -->
+                                <div class="edit-grid" style="grid-template-columns: repeat(6, 1fr); gap: 12px; margin-bottom: 12px;">
+                                    <div class="edit-field">
+                                        <div class="edit-label">Firma</div>
+                                        <input type="text" class="edit-input" id="edit-company-${originalIndex}" value="${lead.company || ''}">
+                                    </div>
+                                    <div class="edit-field">
+                                        <div class="edit-label">Kontakt</div>
+                                        <input type="text" class="edit-input" id="edit-contact-${originalIndex}" value="${lead.contact || ''}">
+                                    </div>
+                                    <div class="edit-field">
+                                        <div class="edit-label">Position</div>
+                                        <input type="text" class="edit-input" id="edit-position-${originalIndex}" value="${lead.position || ''}">
+                                    </div>
+                                    <div class="edit-field">
+                                        <div class="edit-label">Email</div>
+                                        <input type="email" class="edit-input" id="edit-email-${originalIndex}" value="${lead.email || ''}">
+                                    </div>
+                                    <div class="edit-field">
+                                        <div class="edit-label">Telefon</div>
+                                        <input type="tel" class="edit-input" id="edit-phone-${originalIndex}" value="${lead.phone || ''}">
+                                    </div>
+                                    <div class="edit-field">
+                                        <div class="edit-label">Branche</div>
+                                        <input type="text" class="edit-input" id="edit-industry-${originalIndex}" value="${lead.industry || ''}">
+                                    </div>
+                                    <div class="edit-field">
+                                        <div class="edit-label">Quelle</div>
+                                        <input type="text" class="edit-input" id="edit-source-${originalIndex}" value="${lead.source || ''}">
+                                    </div>
+                                    <div class="edit-field">
+                                        <div class="edit-label">LinkedIn</div>
+                                        <input type="url" class="edit-input" id="edit-linkedin-${originalIndex}" value="${lead.linkedin || ''}">
+                                    </div>
+                                    <div class="edit-field">
+                                        <div class="edit-label">Response Rate</div>
+                                        <select class="edit-select" id="edit-responserate-${originalIndex}">
+                                            <option value="">-</option>
+                                            <option value="waiting" ${lead.responseRate === 'waiting' ? 'selected' : ''}>⏳ Warte</option>
+                                            <option value="positive" ${lead.responseRate === 'positive' ? 'selected' : ''}>✅ Positiv</option>
+                                            <option value="negative" ${lead.responseRate === 'negative' ? 'selected' : ''}>❌ Negativ</option>
+                                        </select>
+                                    </div>
+                                    <div class="edit-field">
+                                        <div class="edit-label">Energie Interesse</div>
+                                        <select class="edit-select" id="edit-energyinterest-${originalIndex}">
+                                            <option value="false" ${!lead.energyInterest ? 'selected' : ''}>Nein</option>
+                                            <option value="true" ${lead.energyInterest ? 'selected' : ''}>Ja</option>
+                                        </select>
+                                    </div>
+                                    <div class="edit-field">
+                                        <div class="edit-label tooltip">Pain Level
+                                            <span class="tooltiptext">Schmerzintensität des Problems (1-10). Höherer Pain = höhere Kaufbereitschaft nach Hormozi.</span>
+                                        </div>
+                                        <select class="edit-select" id="edit-painlevel-${originalIndex}">
+                                            <option value="1" ${lead.painLevel === 1 ? 'selected' : ''}>1 - Niedrig</option>
+                                            <option value="2" ${lead.painLevel === 2 ? 'selected' : ''}>2</option>
+                                            <option value="3" ${lead.painLevel === 3 ? 'selected' : ''}>3</option>
+                                            <option value="4" ${lead.painLevel === 4 ? 'selected' : ''}>4</option>
+                                            <option value="5" ${lead.painLevel === 5 ? 'selected' : ''}>5 - Mittel</option>
+                                            <option value="6" ${lead.painLevel === 6 ? 'selected' : ''}>6</option>
+                                            <option value="7" ${lead.painLevel === 7 ? 'selected' : ''}>7</option>
+                                            <option value="8" ${lead.painLevel === 8 ? 'selected' : ''}>8</option>
+                                            <option value="9" ${lead.painLevel === 9 ? 'selected' : ''}>9</option>
+                                            <option value="10" ${lead.painLevel === 10 ? 'selected' : ''}>10 - Kritisch</option>
+                                        </select>
+                                    </div>
+                                    <div class="edit-field">
+                                        <div class="edit-label">Budget Status</div>
+                                        <select class="edit-select" id="edit-budget-${originalIndex}">
+                                            <option value="unknown" ${lead.budgetStatus === 'unknown' ? 'selected' : ''}>❓ Unbekannt</option>
+                                            <option value="confirmed" ${lead.budgetStatus === 'confirmed' ? 'selected' : ''}>✅ Bestätigt</option>
+                                            <option value="negotiable" ${lead.budgetStatus === 'negotiable' ? 'selected' : ''}>🔄 Verhandelbar</option>
+                                            <option value="tight" ${lead.budgetStatus === 'tight' ? 'selected' : ''}>⚠️ Knapp</option>
+                                            <option value="none" ${lead.budgetStatus === 'none' ? 'selected' : ''}>❌ Kein Budget</option>
+                                        </select>
+                                    </div>
+                                    <div class="edit-field">
+                                        <div class="edit-label">Decision Maker</div>
+                                        <select class="edit-select" id="edit-decisionmaker-${originalIndex}">
+                                            <option value="yes" ${lead.decisionMaker === 'yes' ? 'selected' : ''}>✅ Ja</option>
+                                            <option value="influence" ${lead.decisionMaker === 'influence' ? 'selected' : ''}>🤝 Einfluss</option>
+                                            <option value="no" ${lead.decisionMaker === 'no' ? 'selected' : ''}>❌ Nein</option>
+                                            <option value="unknown" ${lead.decisionMaker === 'unknown' ? 'selected' : ''}>❓ Unbekannt</option>
+                                        </select>
+                                    </div>
+                                    <div class="edit-field">
+                                        <div class="edit-label tooltip">Lead Temperature
+                                            <span class="tooltiptext">Dringlichkeit: Cold = kein Stress, Warm = moderater Druck, Hot = hohe Urgency, Burning = sofortiger Handlungsbedarf.</span>
+                                        </div>
+                                        <select class="edit-select" id="edit-temperature-${originalIndex}">
+                                            <option value="cold" ${lead.leadTemperature === 'cold' ? 'selected' : ''}>🧊 Cold</option>
+                                            <option value="warm" ${lead.leadTemperature === 'warm' ? 'selected' : ''}>🔥 Warm</option>
+                                            <option value="hot" ${lead.leadTemperature === 'hot' ? 'selected' : ''}>🌶️ Hot</option>
+                                            <option value="burning" ${lead.leadTemperature === 'burning' ? 'selected' : ''}>💥 Burning</option>
+                                        </select>
+                                    </div>
+                                    <div class="edit-field">
+                                        <div class="edit-label">Timeline</div>
+                                        <select class="edit-select" id="edit-timeline-${originalIndex}">
+                                            <option value="immediate" ${lead.timeline === 'immediate' ? 'selected' : ''}>⚡ Sofort</option>
+                                            <option value="month" ${lead.timeline === 'month' ? 'selected' : ''}>📅 Diesen Monat</option>
+                                            <option value="quarter" ${lead.timeline === 'quarter' ? 'selected' : ''}>📊 Dieses Quartal</option>
+                                            <option value="year" ${lead.timeline === 'year' ? 'selected' : ''}>📈 Dieses Jahr</option>
+                                            <option value="unclear" ${lead.timeline === 'unclear' ? 'selected' : ''}>❓ Unklar</option>
+                                        </select>
+                                    </div>
+                                    <div class="edit-field">
+                                        <div class="edit-label tooltip">Contract Length
+                                            <span class="tooltiptext">Erwartete Vertragslaufzeit. Wichtig für LTV-Berechnung: Mehrjährig = höchster Customer Lifetime Value.</span>
+                                        </div>
+                                        <select class="edit-select" id="edit-contract-${originalIndex}">
+                                            <option value="one_time" ${lead.contractLength === 'one_time' ? 'selected' : ''}>🎯 Einmalig</option>
+                                            <option value="monthly" ${lead.contractLength === 'monthly' ? 'selected' : ''}>📅 Monatlich</option>
+                                            <option value="quarterly" ${lead.contractLength === 'quarterly' ? 'selected' : ''}>📊 Quartalsweise</option>
+                                            <option value="yearly" ${lead.contractLength === 'yearly' ? 'selected' : ''}>📈 Jährlich</option>
+                                            <option value="multi_year" ${lead.contractLength === 'multi_year' ? 'selected' : ''}>🔒 Mehrjährig</option>
+                                        </select>
+                                    </div>
+                                    <div class="edit-field">
+                                        <div class="edit-label tooltip">Upsell Potential
+                                            <span class="tooltiptext">Wahrscheinlichkeit für Additional Sales: Premium Features, Mehr Lizenzen, Erweiterte Services. Multipliziert den LTV.</span>
+                                        </div>
+                                        <select class="edit-select" id="edit-upsell-${originalIndex}">
+                                            <option value="none" ${lead.upsellPotential === 'none' ? 'selected' : ''}>❌ Keines</option>
+                                            <option value="low" ${lead.upsellPotential === 'low' ? 'selected' : ''}>🔸 Niedrig</option>
+                                            <option value="medium" ${lead.upsellPotential === 'medium' ? 'selected' : ''}>🔶 Mittel</option>
+                                            <option value="high" ${lead.upsellPotential === 'high' ? 'selected' : ''}>🔥 Hoch</option>
+                                            <option value="excellent" ${lead.upsellPotential === 'excellent' ? 'selected' : ''}>💎 Exzellent</option>
+                                        </select>
+                                    </div>
+                                    <div class="edit-field">
+                                        <div class="edit-label tooltip">Referral Value
+                                            <span class="tooltiptext">Netzwerk-Größe für Empfehlungen. Influencer können 10+ weitere Leads bringen. Viral Growth Coefficient.</span>
+                                        </div>
+                                        <select class="edit-select" id="edit-referral-${originalIndex}">
+                                            <option value="none" ${lead.referralValue === 'none' ? 'selected' : ''}>❌ Kein Netzwerk</option>
+                                            <option value="small" ${lead.referralValue === 'small' ? 'selected' : ''}>🔸 Kleines Netzwerk</option>
+                                            <option value="medium" ${lead.referralValue === 'medium' ? 'selected' : ''}>🔶 Gutes Netzwerk</option>
+                                            <option value="large" ${lead.referralValue === 'large' ? 'selected' : ''}>🔥 Großes Netzwerk</option>
+                                            <option value="influencer" ${lead.referralValue === 'influencer' ? 'selected' : ''}>🌟 Influencer/Multiplikator</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <!-- Large Fields Grid -->
+                                <div class="edit-grid" style="grid-template-columns: 1fr 1fr; gap: 12px;">
+                                    <div class="edit-field">
+                                        <div class="edit-label">Pain Point</div>
+                                        <textarea class="edit-input edit-textarea" id="edit-painpoint-${originalIndex}" style="height: 60px;">${lead.painPoint || ''}</textarea>
+                                    </div>
+                                    <div class="edit-field">
+                                        <div class="edit-label">Angebot</div>
+                                        <textarea class="edit-input edit-textarea" id="edit-offering-${originalIndex}" style="height: 60px;">${lead.offering || ''}</textarea>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="edit-actions">
+                                <div class="edit-actions-left">
+                                    <button class="btn-mini btn-delete-mini" onclick="deleteLead(${originalIndex})">Löschen</button>
+                                </div>
+                                <div class="edit-actions-right">
+                                    <button class="edit-toggle-btn" onclick="toggleExtended(${originalIndex})">Alle Felder</button>
+                                </div>
+                            </div>
+                        </div>
+                    </td>
+                </tr>
+            `;
+            }).join('');
+            
+            // Initialize ARR calculations for edit forms
+            setTimeout(initializeARR, 10);
+        }
+
+        function getStatusLabel(status) {
+            const labels = {
+                'new': '🆕 Neu',
+                'email_sent': '📧 Email gesendet', 
+                'response': '💬 Response',
+                'meeting': '💼 Meeting',
+                'no_interest': '🚫 Kein Interesse'
+            };
+            return labels[status] || '🆕 Neu';
+        }
+
+        function getStatusTooltip(status) {
+            const tooltips = {
+                'new': 'Lead wurde neu erfasst, noch kein Erstkontakt erfolgt',
+                'email_sent': 'E-Mail oder erste Nachricht wurde versendet, warte auf Antwort',
+                'response': 'Lead hat positiv geantwortet, Interesse vorhanden',
+                'meeting': 'Termin vereinbart oder Meeting bereits durchgeführt',
+                'no_interest': 'Lead hat kein Interesse signalisiert oder nicht geantwortet'
+            };
+            return tooltips[status] || 'Status-Information nicht verfügbar';
+        }
+
+        function getPriorityLabel(priority) {
+            const labels = {
+                'high': '🔥 Hoch',
+                'medium': '🟡 Mittel', 
+                'low': '🟢 Niedrig'
+            };
+            return labels[priority] || '🟡 Mittel';
+        }
+
+        function scheduleFollowup(leadEmail) {
+            const lead = leads.find(l => l.email === leadEmail);
+            if (!lead) return;
+            
+            // Prüfen ob bereits ein aktives Follow-up existiert
+            if (hasActiveFollowup(lead)) {
+                showSaveStatus('⚠️ Follow-up bereits aktiv');
+                console.log('🚫 Follow-up scheduling blocked - active follow-up exists');
+                return;
+            }
+            
+            // Show follow-up scheduling buttons (like reschedule)
+            showFollowupScheduleButtons(leadEmail);
+        }
+        
+        function showFollowupScheduleButtons(leadEmail) {
+            const lead = leads.find(l => l.email === leadEmail);
+            if (!lead) return;
+            
+            // Create overlay with buttons
+            const overlay = document.createElement('div');
+            overlay.style.cssText = `
+                position: fixed; top: 0; left: 0; width: 100%; height: 100%; 
+                background: rgba(0,0,0,0.5); display: flex; align-items: center; 
+                justify-content: center; z-index: 1000;
+            `;
+            
+            // Close modal when clicking on overlay
+            overlay.addEventListener('click', function(e) {
+                if (e.target === overlay) {
+                    closeFollowupModal();
+                }
+            });
+            
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                background: var(--bg-secondary); padding: 30px; border-radius: 12px; 
+                box-shadow: 0 10px 30px rgba(0,0,0,0.3); max-width: 400px;
+            `;
+            
+            const tomorrow = new Date();
+            tomorrow.setDate(tomorrow.getDate() + 1);
+            const defaultDate = tomorrow.toISOString().split('T')[0];
+            
+            modal.innerHTML = `
+                <h3 style="margin: 0 0 20px 0; color: var(--text-primary);">Follow-up planen</h3>
+                <p style="margin: 0 0 25px 0; color: var(--text-secondary);">${lead.company}</p>
+                
+                <div style="margin-bottom: 20px;">
+                    <label style="display: block; margin-bottom: 8px; font-weight: 500; color: var(--text-primary);">Datum:</label>
+                    <input type="date" id="followup-date" value="${defaultDate}" 
+                           style="width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 16px; background: var(--bg-secondary); color: var(--text-primary);">
+                </div>
+                
+                <div style="margin-bottom: 25px;">
+                    <label style="display: block; margin-bottom: 8px; font-weight: 500; color: var(--text-primary);">Zeit:</label>
+                    <input type="time" id="followup-time" value="09:00" 
+                           style="width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 16px; background: var(--bg-secondary); color: var(--text-primary);">
+                </div>
+                
+                <div style="margin-bottom: 25px;">
+                    <label style="display: block; margin-bottom: 8px; font-weight: 500; color: var(--text-primary);">Aktion:</label>
+                    <select id="followup-action" 
+                            style="width: 100%; padding: 12px; border: 1px solid var(--border-color); border-radius: 8px; font-size: 16px; background: var(--bg-secondary); color: var(--text-primary);">
+                        <option value="Email Follow-up">Email Follow-up</option>
+                        <option value="Follow-up Call">Follow-up Call</option>
+                        <option value="LinkedIn Message">LinkedIn Message</option>
+                        <option value="Meeting Request">Meeting Request</option>
+                        <option value="Check-in">Check-in</option>
+                        <option value="Proposal Follow-up">Proposal Follow-up</option>
+                    </select>
+                </div>
+                
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px;">
+                    <button onclick="closeFollowupModal()" 
+                            style="padding: 12px; border: 1px solid var(--border-color); border-radius: 8px; background: var(--bg-secondary); color: var(--text-primary); cursor: pointer;">
+                        Abbrechen
+                    </button>
+                    <button onclick="saveScheduledFollowup('${leadEmail}'); closeFollowupModal()" 
+                            style="padding: 12px; border: 1px solid #007aff; border-radius: 8px; background: #007aff; color: white; cursor: pointer; font-weight: 500;">
+                        Speichern
+                    </button>
+                </div>
+            `;
+            
+            overlay.appendChild(modal);
+            document.body.appendChild(overlay);
+            overlay.id = 'followupModal';
+        }
+        
+        function saveScheduledFollowup(leadEmail) {
+            const lead = leads.find(l => l.email === leadEmail);
+            if (!lead) return;
+            
+            const date = document.getElementById('followup-date').value;
+            const time = document.getElementById('followup-time').value;
+            const action = document.getElementById('followup-action').value;
+            
+            if (!date) {
+                alert('Bitte wähle ein Datum.');
+                return;
+            }
+            
+            lead.nextFollowupDate = date;
+            lead.nextFollowupTime = time;
+            lead.followupAction = action;
+            lead.gcalAdded = false; // Reset GCal flag for new follow-up
+            lead.lastModified = new Date().toISOString();
+            
+            // Follow-up in History aktualisieren oder hinzufügen
+            updateFollowupHistory(lead);
+            
+            // Mark data as modified for sync
+            markDataModified();
+            
+            saveData();
+            updateFollowupDashboard();
+            updateLeadsTable();
+            
+            showSaveStatus('✓ Follow-up geplant');
+        }
+        
+        function closeFollowupModal() {
+            // Close the static modal
+            const staticModal = document.getElementById('followup-modal');
+            if (staticModal) {
+                staticModal.style.display = 'none';
+            }
+            
+            // Remove any dynamically created modal
+            const dynamicModal = document.getElementById('followupModal');
+            if (dynamicModal) {
+                dynamicModal.remove();
+            }
+        }
+
+        // Navigation
+        function switchTab(tabName) {
+            // Update tab buttons
+            document.querySelectorAll('.nav-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            
+            // Find and activate the correct tab button
+            const tabButtons = document.querySelectorAll('.nav-tab');
+            tabButtons.forEach(tab => {
+                if ((tabName === 'followups' && tab.textContent.includes('Follow-ups')) ||
+                    (tabName === 'leads' && tab.textContent.includes('Alle Leads')) ||
+                    (tabName === 'linkedin' && tab.textContent.includes('LinkedIn PoC'))) {
+                    tab.classList.add('active');
+                }
+            });
+            
+            // Update tab content
+            document.querySelectorAll('.tab-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            document.getElementById(tabName + '-content').classList.add('active');
+        }
+
+        // Search and Filter
+        function filterLeads(searchTerm = '') {
+            const statusFilterEl = document.getElementById('statusFilter');
+            const priorityFilterEl = document.getElementById('priorityFilter');
+            const searchInputEl = document.getElementById('searchInput');
+            
+            // If filter elements don't exist yet, just update the table normally
+            if (!statusFilterEl || !priorityFilterEl || !searchInputEl) {
+                updateLeadsTable();
+                return;
+            }
+            
+            const statusFilter = statusFilterEl.value;
+            const priorityFilter = priorityFilterEl.value;
+            
+            if (!searchTerm) {
+                searchTerm = searchInputEl.value;
+            }
+            
+            // Apply filters to the leads data
+            let filteredLeads = leads.filter(lead => {
+                // Status filter
+                if (statusFilter && lead.status !== statusFilter) {
+                    return false;
+                }
+                
+                // Priority filter
+                if (priorityFilter && lead.priority !== priorityFilter) {
+                    return false;
+                }
+                
+                // Volltext search - search through all text fields of the lead
+                if (searchTerm.trim()) {
+                    const searchLower = searchTerm.toLowerCase();
+                    const searchFields = [
+                        lead.company || '',
+                        lead.contact || '',
+                        lead.position || '',
+                        lead.email || '',
+                        lead.phone || '',
+                        lead.industry || '',
+                        lead.painPoint || '',
+                        lead.offering || '',
+                        lead.nextStep || '',
+                        lead.followupAction || '',
+                        lead.notes || '',
+                        lead.source || ''
+                    ];
+                    
+                    const matchFound = searchFields.some(field => 
+                        field.toLowerCase().includes(searchLower)
+                    );
+                    
+                    if (!matchFound) {
+                        return false;
+                    }
+                }
+                
+                return true;
+            });
+            
+            // Update table with filtered results
+            updateLeadsTable(filteredLeads);
+        }
+
+        // Table Sorting
+        function sortTable(column) {
+            if (currentSort.column === column) {
+                currentSort.direction = currentSort.direction === 'asc' ? 'desc' : 'asc';
+            } else {
+                currentSort.column = column;
+                currentSort.direction = 'asc';
+            }
+            
+            leads.sort((a, b) => {
+                let aVal = a[column] || '';
+                let bVal = b[column] || '';
+                
+                if (typeof aVal === 'string') {
+                    aVal = aVal.toLowerCase();
+                    bVal = bVal.toLowerCase();
+                }
+                
+                if (currentSort.direction === 'asc') {
+                    return aVal < bVal ? -1 : aVal > bVal ? 1 : 0;
+                } else {
+                    return aVal > bVal ? -1 : aVal < bVal ? 1 : 0;
+                }
+            });
+            
+            updateLeadsTable();
+        }
+
+        // Placeholder functions for future implementation
+        function showAddLeadForm(prefillData = {}) {
+            // Create new lead with defaults
+            const newLead = {
+                id: 'L' + Date.now().toString().slice(-6),
+                company: prefillData.company || '',
+                contact: prefillData.contact || '',
+                position: prefillData.position || '',
+                email: prefillData.email || '',
+                linkedin: prefillData.linkedin || '',
+                phone: prefillData.phone || '',
+                industry: prefillData.industry || '',
+                priority: prefillData.priority || 'medium',
+                painPoint: prefillData.painPoint || '',
+                offering: prefillData.offering || '',
+                status: 'new',
+                firstContact: new Date().toISOString().split('T')[0],
+                lastContact: new Date().toISOString().split('T')[0],
+                responseRate: 'waiting',
+                nextStep: prefillData.nextStep || '',
+                nextFollowupDate: prefillData.nextFollowupDate || '',
+                nextFollowupTime: '09:00',
+                followupAction: prefillData.followupAction || '',
+                followupPriority: 'medium',
+                meetingBooked: null,
+                dealSize: parseInt(prefillData.dealSize) || 0,
+                notes: prefillData.notes || '',
+                source: prefillData.source || 'Manual',
+                energyInterest: false,
+                closingProbability: 50,
+                painLevel: 5,
+                budgetStatus: 'unknown',
+                decisionMaker: 'unknown',
+                leadTemperature: 'warm',
+                timeline: 'unclear',
+                contractLength: 'monthly',
+                upsellPotential: 'medium',
+                referralValue: 'small',
+                followupHistory: [],
+                lastModified: new Date().toISOString()
+            };
+            
+            // Add to leads array
+            leads.push(newLead);
+            
+            // Mark data as modified for sync
+            markDataModified();
+            
+            // Save and refresh
+            saveData();
+            updateLeadsTable();
+            updateFollowupDashboard();
+            
+            // Auto-open edit for the new lead
+            const newIndex = leads.length - 1;
+            toggleEdit(newIndex);
+            
+            // Switch to leads tab
+            switchTab('leads');
+            
+            showSaveStatus('✓ Neuer Lead hinzugefügt');
+        }
+
+        function toggleEdit(index) {
+            // Close any currently open edit (just reset the state)
+            if (currentEditingLead !== null) {
+                currentEditingLead = null;
+            }
+            
+            // Set current editing lead
+            currentEditingLead = leads[index];
+            
+            // Refresh table to show edit state
+            updateLeadsTable();
+        }
+
+        // cancelEdit() function removed - no longer needed with autosave
+
+        function saveEdit(index) {
+            const lead = leads[index];
+            if (!lead) return;
+            
+            // Get form values - Quick edit fields are always available
+            // Extended fields only if they exist in DOM
+            const companyField = document.getElementById(`edit-company-${index}`);
+            const contactField = document.getElementById(`edit-contact-${index}`);
+            const emailField = document.getElementById(`edit-email-${index}`);
+            
+            if (companyField) {
+                // Extended view is open, validate required fields
+                const company = companyField.value.trim();
+                const contact = contactField.value.trim();
+                const email = emailField.value.trim();
+                
+                if (!company || !contact || !email) {
+                    alert('Bitte fülle Firma, Kontakt und Email aus.');
+                    return;
+                }
+                
+                // Check if email was changed and already exists
+                if (email !== lead.email) {
+                    const existingLead = leads.find(l => l.email === email && l !== lead);
+                    if (existingLead) {
+                        alert('Diese Email-Adresse existiert bereits.');
+                        return;
+                    }
+                }
+                
+                // Update basic info
+                lead.company = company;
+                lead.contact = contact;
+                lead.email = email;
+            }
+            
+            // Quick edit fields (always available)
+            lead.status = document.getElementById(`edit-status-${index}`).value;
+            lead.priority = document.getElementById(`edit-priority-${index}`).value;
+            lead.nextFollowupDate = document.getElementById(`edit-followup-date-${index}`).value;
+            lead.dealSize = parseInt(document.getElementById(`edit-dealsize-${index}`).value) || 0;
+            lead.closingProbability = parseInt(document.getElementById(`edit-closingprob-${index}`).value) || 50;
+            lead.followupAction = document.getElementById(`edit-followup-action-${index}`).value.trim();
+            lead.nextStep = document.getElementById(`edit-nextstep-${index}`).value.trim();
+            lead.notes = document.getElementById(`edit-notes-${index}`).value.trim();
+            
+            console.log('SaveEdit: Updated fields:', {
+                followupAction: lead.followupAction,
+                nextStep: lead.nextStep,
+                notes: lead.notes,
+                priority: lead.priority,
+                status: lead.status,
+                dealSize: lead.dealSize
+            });
+            
+            // Extended fields (if they exist in DOM)
+            const positionField = document.getElementById(`edit-position-${index}`);
+            if (positionField) {
+                lead.position = positionField.value.trim();
+                lead.phone = document.getElementById(`edit-phone-${index}`).value.trim();
+                lead.industry = document.getElementById(`edit-industry-${index}`).value.trim();
+                lead.source = document.getElementById(`edit-source-${index}`).value.trim();
+                lead.linkedin = document.getElementById(`edit-linkedin-${index}`).value.trim();
+                lead.responseRate = document.getElementById(`edit-responserate-${index}`).value;
+                lead.energyInterest = document.getElementById(`edit-energyinterest-${index}`).value === 'true';
+                lead.painLevel = parseInt(document.getElementById(`edit-painlevel-${index}`).value) || 5;
+                lead.budgetStatus = document.getElementById(`edit-budget-${index}`).value;
+                lead.decisionMaker = document.getElementById(`edit-decisionmaker-${index}`).value;
+                lead.leadTemperature = document.getElementById(`edit-temperature-${index}`).value;
+                lead.timeline = document.getElementById(`edit-timeline-${index}`).value;
+                lead.contractLength = document.getElementById(`edit-contract-${index}`).value;
+                lead.upsellPotential = document.getElementById(`edit-upsell-${index}`).value;
+                lead.referralValue = document.getElementById(`edit-referral-${index}`).value;
+                lead.painPoint = document.getElementById(`edit-painpoint-${index}`).value.trim();
+                lead.offering = document.getElementById(`edit-offering-${index}`).value.trim();
+            }
+            
+            lead.followupPriority = lead.priority;
+            lead.lastModified = new Date().toISOString();
+            
+            // Follow-up in History aktualisieren wenn geändert
+            updateFollowupHistory(lead);
+            
+            // Mark data as modified for sync
+            markDataModified();
+            
+            console.log('SaveEdit: Final lead state:', {
+                id: lead.id,
+                company: lead.company,
+                priority: lead.priority,
+                status: lead.status,
+                dealSize: lead.dealSize,
+                followupAction: lead.followupAction,
+                nextStep: lead.nextStep,
+                notes: lead.notes,
+                lastModified: lead.lastModified
+            });
+            
+            // Don't trigger autosave here - autosave already called this function
+            // Just save the data directly
+            currentEditingLead = null;
+        }
+
+        function deleteLead(index) {
+            const lead = leads[index];
+            if (!lead) return;
+            
+            const confirmDelete = confirm(
+                `Lead "${lead.company}" wirklich löschen?\n\n` +
+                `Diese Aktion kann nicht rückgängig gemacht werden.`
+            );
+            
+            if (confirmDelete) {
+                leads.splice(index, 1);
+                currentEditingLead = null;
+                
+                // Save and refresh UI
+                saveData();
+                updateLeadsTable();
+                updateFollowupDashboard();
+                
+                showSaveStatus('✓ Lead gelöscht');
+            }
+        }
+
+        function editLead(leadEmail) {
+            // This function is called from the old onclick - redirect to toggleEdit
+            const index = leads.findIndex(l => l.email === leadEmail);
+            if (index !== -1) {
+                toggleEdit(index);
+            }
+        }
+
+        function toggleExtended(index) {
+            const extendedDiv = document.getElementById(`edit-extended-${index}`);
+            const toggleBtn = event.target;
+            
+            if (extendedDiv.classList.contains('active')) {
+                extendedDiv.classList.remove('active');
+                toggleBtn.classList.remove('active');
+                toggleBtn.textContent = 'Alle Felder';
+            } else {
+                extendedDiv.classList.add('active');
+                toggleBtn.classList.add('active');
+                toggleBtn.textContent = 'Weniger';
+            }
+        }
+
+        function updateARR(index) {
+            const dealSize = parseInt(document.getElementById(`edit-dealsize-${index}`).value) || 0;
+            const closingProb = parseInt(document.getElementById(`edit-closingprob-${index}`).value) || 0;
+            const arr = Math.round(dealSize * (closingProb / 100));
+            
+            document.getElementById(`edit-arr-${index}`).textContent = '€' + arr.toLocaleString();
+        }
+
+        // Follow-up Modal Functions
+        function openFollowupModal(leadIndex) {
+            const lead = leads[leadIndex];
+            if (!lead) return;
+            
+            // Prüfen ob bereits ein aktives Follow-up existiert  
+            if (hasActiveFollowup(lead)) {
+                showSaveStatus('⚠️ Follow-up bereits aktiv');
+                console.log('🚫 Follow-up modal blocked - active follow-up exists');
+                return;
+            }
+            
+            currentFollowupLeadIndex = leadIndex;
+            
+            // Pre-fill with current data
+            document.getElementById('modal-followup-date').value = lead.nextFollowupDate || '';
+            document.getElementById('modal-followup-time').value = lead.nextFollowupTime || '09:00';
+            document.getElementById('modal-followup-action').value = lead.followupAction || '';
+            document.getElementById('modal-followup-priority').value = lead.priority || 'medium';
+            
+            // Auto-suggest next business day if no date set
+            if (!lead.nextFollowupDate) {
+                const tomorrow = new Date();
+                tomorrow.setDate(tomorrow.getDate() + 1);
+                // Skip weekend
+                if (tomorrow.getDay() === 0) tomorrow.setDate(tomorrow.getDate() + 1); // Skip Sunday
+                if (tomorrow.getDay() === 6) tomorrow.setDate(tomorrow.getDate() + 2); // Skip Saturday
+                document.getElementById('modal-followup-date').value = tomorrow.toISOString().split('T')[0];
+            }
+            
+            document.getElementById('followup-modal').style.display = 'block';
+        }
+
+
+        function saveFollowup() {
+            if (currentFollowupLeadIndex === null) return;
+            
+            const lead = leads[currentFollowupLeadIndex];
+            const date = document.getElementById('modal-followup-date').value;
+            const time = document.getElementById('modal-followup-time').value;
+            const type = document.getElementById('modal-followup-type').value;
+            const action = document.getElementById('modal-followup-action').value;
+            const priority = document.getElementById('modal-followup-priority').value;
+            
+            if (!date) {
+                alert('Bitte ein Datum auswählen!');
+                return;
+            }
+            
+            // Update lead
+            lead.nextFollowupDate = date;
+            lead.nextFollowupTime = time;
+            lead.followupAction = action || getDefaultActionForType(type);
+            lead.followupType = type;
+            lead.followupPriority = priority;
+            lead.lastModified = new Date().toISOString();
+            
+            // Initialize followups array if not exists
+            if (!lead.followups) lead.followups = [];
+            
+            // Add to followups history
+            lead.followups.push({
+                scheduledDate: date,
+                scheduledTime: time,
+                type: type,
+                action: action || getDefaultActionForType(type),
+                priority: priority,
+                status: 'planned',
+                createdAt: new Date().toISOString()
+            });
+            
+            triggerAutosave();
+            updateFollowupDashboard();
+            updateLeadsTable();
+            closeFollowupModal();
+        }
+
+        function getDefaultActionForType(type) {
+            const defaults = {
+                'call': 'Telefongespräch führen',
+                'email': 'Follow-up Email senden',
+                'linkedin': 'LinkedIn Nachricht',
+                'meeting': 'Meeting vereinbaren',
+                'proposal': 'Angebot übermitteln',
+                'checkin': 'Status Check-in'
+            };
+            return defaults[type] || 'Follow-up durchführen';
+        }
+
+        function initializeARR() {
+            // Initialize ARR calculation for all visible edit forms
+            document.querySelectorAll('[id^="edit-dealsize-"]').forEach(input => {
+                const index = input.id.split('-')[2];
+                updateARR(index);
+            });
+        }
+
+        function setupAutosaveListeners() {
+            // Event delegation für alle Eingabefelder im Edit-Bereich
+            document.addEventListener('input', function(e) {
+                // Prüfe ob das Element ein Edit-Feld ist
+                if (e.target.id && e.target.id.startsWith('edit-')) {
+                    triggerAutosave();
+                    
+                    // Spezielle Behandlung für Deal Size und Closing %
+                    if (e.target.id.includes('dealsize-') || e.target.id.includes('closingprob-')) {
+                        const index = e.target.id.split('-')[2];
+                        updateARR(index);
+                    }
+                }
+            });
+
+            // Auch für Select-Änderungen
+            document.addEventListener('change', function(e) {
+                if (e.target.id && e.target.id.startsWith('edit-')) {
+                    triggerAutosave();
+                }
+            });
+        }
+    </script>
+</body>
+</html>
