@@ -36,14 +36,22 @@ class ToolManager {
                 this.tools = JSON.parse(savedTools);
                 console.log(`Loaded ${this.tools.length} tools`);
             } else {
-                // Add default example tools
+                // Add default tools
                 this.tools = [
                     {
-                        id: 'libraleads',
-                        name: 'LibraLeads',
+                        id: 'libraleadscms',
+                        name: 'LibraLeads CMS',
                         icon: '📊',
-                        description: 'CRM & Lead Management',
-                        path: 'tools/libraleads.html',
+                        description: 'Advanced CRM & Lead Management',
+                        path: 'tools/LibraLeadsCMS.html',
+                        isDefault: true
+                    },
+                    {
+                        id: 'businesscardextractor',
+                        name: 'Business Card Extractor',
+                        icon: '📇',
+                        description: 'Extract contacts from business cards',
+                        path: 'tools/BusinessCardExtractor_V8.html',
                         isDefault: true
                     }
                 ];
