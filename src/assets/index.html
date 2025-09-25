@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: https://ssl.gstatic.com 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; script-src 'self' 'unsafe-inline' 'unsafe-eval';">
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self' data: blob: https://ssl.gstatic.com 'unsafe-eval'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; script-src 'self' 'unsafe-inline' 'unsafe-eval'; frame-src 'self' blob: data:;">
     <title>Libra Hub</title>
     <link href="https://fonts.googleapis.com/css2?family=SF+Pro+Display:wght@300;400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
     <style>
@@ -331,6 +331,48 @@
             height: calc(100% - 60px);
             border: none;
             background: var(--bg-primary);
+            margin-top: env(safe-area-inset-top, 0px);
+        }
+
+        /* Tool Action Buttons */
+        .tool-actions {
+            display: flex;
+            gap: var(--space-2);
+            margin-left: auto;
+        }
+
+        .tool-action-btn {
+            background: var(--bg-tertiary);
+            border: none;
+            border-radius: 8px;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+
+        .tool-action-btn:hover {
+            background: var(--border-regular);
+            transform: scale(1.1);
+        }
+
+        .tool-action-btn:active {
+            transform: scale(0.9);
+        }
+
+        /* Safe Area Support for Android */
+        .main-container {
+            padding-top: calc(var(--space-6) + env(safe-area-inset-top, 0px));
+            padding-bottom: calc(var(--space-6) + env(safe-area-inset-bottom, 0px));
+        }
+
+        .tool-header {
+            height: calc(60px + env(safe-area-inset-top, 0px));
+            padding-top: env(safe-area-inset-top, 0px);
         }
 
         /* Status Messages */

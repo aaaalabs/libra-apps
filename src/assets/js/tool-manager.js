@@ -104,6 +104,12 @@ class ToolManager {
                     <div class="tool-description">${tool.description}</div>
                     <div class="tool-status">${status}</div>
                 </div>
+                ${!tool.isDefault ? `
+                <div class="tool-actions">
+                    <button class="tool-action-btn" onclick="event.stopPropagation(); toolManager.removeTool('${tool.id}')" title="Remove">🗑️</button>
+                    <button class="tool-action-btn" onclick="event.stopPropagation(); toolManager.replaceTool('${tool.id}')" title="Replace">🔄</button>
+                </div>
+                ` : ''}
             </div>
         `;
 
@@ -166,9 +172,11 @@ class ToolManager {
             const titleMatch = content.match(/<title>(.*?)<\/title>/i);
             const toolName = titleMatch ? titleMatch[1] : file.name.replace('.html', '');
 
-            // Create blob URL for the content
-            const blob = new Blob([content], { type: 'text/html' });
-            const contentUrl = URL.createObjectURL(blob);
+            // Fix CSP issues in uploaded HTML
+            const fixedContent = this.fixContentCSP(content);
+
+            // Create base64 data URL instead of blob (CSP-safer)
+            const dataUrl = 'data:text/html;base64,' + btoa(unescape(encodeURIComponent(fixedContent)));
 
             const newTool = {
                 id: toolId,
@@ -176,8 +184,8 @@ class ToolManager {
                 icon: '🔧', // Default icon, could be customized
                 description: 'Custom Tool',
                 path: file.name,
-                contentUrl: contentUrl,
-                content: content,
+                contentUrl: dataUrl,
+                content: fixedContent,
                 isDefault: false,
                 dateAdded: new Date().toISOString()
             };
@@ -191,6 +199,88 @@ class ToolManager {
         } catch (error) {
             console.error('Error adding tool:', error);
             this.showStatus('Fehler beim Hinzufügen des Tools', 'error');
+        }
+    }
+
+    // Fix CSP issues in uploaded HTML content
+    fixContentCSP(content) {
+        // Update CSP header to allow blob/data URLs
+        return content.replace(
+            /Content-Security-Policy[^>]*>/i,
+            'Content-Security-Policy" content="default-src \'self\' data: blob: https: \'unsafe-eval\' \'unsafe-inline\'; frame-src \'self\' blob: data:;">'
+        );
+    }
+
+    // Remove a tool
+    removeTool(toolId) {
+        const tool = this.tools.find(t => t.id === toolId);
+        if (!tool) return;
+
+        if (confirm(`"${tool.name}" wirklich löschen?`)) {
+            // Revoke blob URL to free memory
+            if (tool.contentUrl && tool.contentUrl.startsWith('blob:')) {
+                URL.revokeObjectURL(tool.contentUrl);
+            }
+
+            this.tools = this.tools.filter(t => t.id !== toolId);
+            this.saveTools();
+            this.renderTools();
+            this.showStatus(`Tool "${tool.name}" entfernt`, 'info');
+        }
+    }
+
+    // Replace a tool
+    replaceTool(toolId) {
+        const tool = this.tools.find(t => t.id === toolId);
+        if (!tool) return;
+
+        // Store the tool to replace
+        this.toolToReplace = tool;
+
+        // Trigger file picker
+        const fileInput = document.getElementById('file-input');
+        if (fileInput) {
+            fileInput.setAttribute('data-replace-mode', 'true');
+            fileInput.click();
+        }
+    }
+
+    // Actually replace a tool with new file
+    async doReplaceTool(oldTool, newFile) {
+        try {
+            const content = await this.readFileAsText(newFile);
+            const titleMatch = content.match(/<title>(.*?)<\/title>/i);
+            const toolName = titleMatch ? titleMatch[1] : newFile.name.replace('.html', '');
+
+            // Fix CSP and create data URL
+            const fixedContent = this.fixContentCSP(content);
+            const dataUrl = 'data:text/html;base64,' + btoa(unescape(encodeURIComponent(fixedContent)));
+
+            // Update existing tool
+            const toolIndex = this.tools.findIndex(t => t.id === oldTool.id);
+            if (toolIndex !== -1) {
+                // Revoke old blob URL
+                if (this.tools[toolIndex].contentUrl && this.tools[toolIndex].contentUrl.startsWith('blob:')) {
+                    URL.revokeObjectURL(this.tools[toolIndex].contentUrl);
+                }
+
+                // Update tool data
+                this.tools[toolIndex] = {
+                    ...this.tools[toolIndex],
+                    name: toolName,
+                    path: newFile.name,
+                    contentUrl: dataUrl,
+                    content: fixedContent,
+                    dateUpdated: new Date().toISOString()
+                };
+
+                this.saveTools();
+                this.renderTools();
+                this.showStatus(`Tool "${toolName}" erfolgreich ersetzt`, 'info');
+            }
+        } catch (error) {
+            console.error('Error replacing tool:', error);
+            this.showStatus('Fehler beim Ersetzen des Tools', 'error');
         }
     }
 
@@ -294,8 +384,16 @@ function addNewTool() {
 
 function handleFileSelect(event) {
     const file = event.target.files[0];
+    const isReplaceMode = event.target.getAttribute('data-replace-mode') === 'true';
+
     if (file && toolManager) {
-        toolManager.addNewTool(file);
+        if (isReplaceMode && toolManager.toolToReplace) {
+            toolManager.doReplaceTool(toolManager.toolToReplace, file);
+            toolManager.toolToReplace = null;
+            event.target.removeAttribute('data-replace-mode');
+        } else {
+            toolManager.addNewTool(file);
+        }
     }
     // Reset the input
     event.target.value = '';
